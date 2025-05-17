@@ -50,12 +50,13 @@ h1, h2 {
     <h2>Blog</h2>
     <p>Drag and drop files (LaTeX, text, PDF, etc.) into the area below to view them.</p>
     <div id="drop-area">Drop files here</div>
-    <div id="file-list"></div>
+    <div id="file-list"><p id="blog-placeholder">Coming Soon</p></div>
 </section>
 
 <script>
 var dropArea = document.getElementById('drop-area');
 var fileList = document.getElementById('file-list');
+var placeholder = document.getElementById('blog-placeholder');
 
 function preventDefaults(e) {
     e.preventDefault();
@@ -88,6 +89,10 @@ function handleFiles(files) {
 }
 
 function previewFile(file) {
+    if (placeholder) {
+        placeholder.remove();
+        placeholder = null;
+    }
     var div = document.createElement('div');
     div.textContent = file.name;
     fileList.appendChild(div);
