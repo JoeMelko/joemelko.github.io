@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Personal Website</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    line-height: 1.6;
+}
+section {
+    margin-bottom: 40px;
+}
+h1, h2 {
+    color: #333;
+}
+#drop-area {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+}
+#file-list {
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<h1>Welcome to My Personal Website</h1>
+
+<section id="about">
+    <h2>About Me</h2>
+    <p>Hello! I'm an example person. This is a simple about section where you can share a little bit about yourself.</p>
+</section>
+
+<section id="projects">
+    <h2>Previous Work</h2>
+    <ul>
+        <li><a href="https://example.com/project1">Project 1</a></li>
+        <li><a href="https://example.com/project2">Project 2</a></li>
+        <li><a href="https://example.com/project3">Project 3</a></li>
+    </ul>
+</section>
+
+<section id="blog">
+    <h2>Blog</h2>
+    <p>Drag and drop files (LaTeX, text, PDF, etc.) into the area below to view them.</p>
+    <div id="drop-area">Drop files here</div>
+    <div id="file-list"></div>
+</section>
+
+<script>
+var dropArea = document.getElementById('drop-area');
+var fileList = document.getElementById('file-list');
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, preventDefaults, false);
+});
+
+dropArea.addEventListener('drop', handleDrop, false);
+
+dropArea.addEventListener('dragover', () => {
+    dropArea.style.background = '#efefef';
+});
+
+dropArea.addEventListener('dragleave', () => {
+    dropArea.style.background = '';
+});
+
+function handleDrop(e) {
+    let dt = e.dataTransfer;
+    let files = dt.files;
+    handleFiles(files);
+    dropArea.style.background = '';
+}
+
+function handleFiles(files) {
+    [...files].forEach(previewFile);
+}
+
+function previewFile(file) {
+    var div = document.createElement('div');
+    div.textContent = file.name;
+    fileList.appendChild(div);
+    var link = document.createElement('a');
+    link.textContent = 'open';
+    link.href = URL.createObjectURL(file);
+    link.target = '_blank';
+    div.appendChild(document.createTextNode(' '));
+    div.appendChild(link);
+}
+</script>
+
+</body>
+</html>
