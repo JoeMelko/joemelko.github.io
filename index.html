@@ -18,17 +18,18 @@ section {
 h1, h2 {
     color: #333;
 }
-#drop-area {
-    border: 2px dashed #ccc;
-    padding: 20px;
-    text-align: center;
-}
-#file-list {
-    margin-top: 10px;
+#blog-link {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
 }
 </style>
 </head>
 <body>
+<a id="blog-link" href="blog.html">Blog</a>
 
 <h1>Hi I'm Joe</h1>
 
@@ -47,64 +48,7 @@ h1, h2 {
     </ul>
 </section>
 
-<section id="blog">
-    <h2>Blog</h2>
-    <p>Drag and drop files (LaTeX, text, PDF, etc.) into the area below to view them.</p>
-    <div id="drop-area">Drop files here</div>
-    <div id="file-list"><p id="blog-placeholder">Coming Soon</p></div>
-</section>
 
-<script>
-var dropArea = document.getElementById('drop-area');
-var fileList = document.getElementById('file-list');
-var placeholder = document.getElementById('blog-placeholder');
-
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropArea.addEventListener(eventName, preventDefaults, false);
-});
-
-dropArea.addEventListener('drop', handleDrop, false);
-
-dropArea.addEventListener('dragover', () => {
-    dropArea.style.background = '#efefef';
-});
-
-dropArea.addEventListener('dragleave', () => {
-    dropArea.style.background = '';
-});
-
-function handleDrop(e) {
-    let dt = e.dataTransfer;
-    let files = dt.files;
-    handleFiles(files);
-    dropArea.style.background = '';
-}
-
-function handleFiles(files) {
-    [...files].forEach(previewFile);
-}
-
-function previewFile(file) {
-    if (placeholder) {
-        placeholder.remove();
-        placeholder = null;
-    }
-    var div = document.createElement('div');
-    div.textContent = file.name;
-    fileList.appendChild(div);
-    var link = document.createElement('a');
-    link.textContent = 'open';
-    link.href = URL.createObjectURL(file);
-    link.target = '_blank';
-    div.appendChild(document.createTextNode(' '));
-    div.appendChild(link);
-}
-</script>
 
 </body>
 </html>
