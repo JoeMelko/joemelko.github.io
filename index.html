@@ -18,10 +18,12 @@ section {
 h1, h2 {
     color: #333;
 }
-#blog-link {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+#nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+#nav a {
     text-decoration: none;
     color: #333;
     font-weight: bold;
@@ -29,7 +31,9 @@ h1, h2 {
 </style>
 </head>
 <body>
-<a id="blog-link" href="blog.html">Blog</a>
+<nav id="nav">
+    <a href="blog.html">Blog</a>
+</nav>
 
 <h1>Hi I'm Joe</h1>
 
