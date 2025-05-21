@@ -44,8 +44,69 @@ body {
 </style>
 <!-- Marked for Markdown parsing -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- MathJax configuration -->
+<script>
+window.MathJax = {
+    tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+    }
+};
+</script>
 <!-- MathJax for equations -->
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+// Configure marked
+marked.use({
+    mangle: false,
+    headerIds: true,
+    gfm: true,
+    breaks: true,
+    walkTokens: function (token) {
+        // Preserve math in text tokens
+        if (token.type === 'text' || token.type === 'paragraph') {
+            token.text = token.text.toString();
+        }
+    }
+});
+
+// Function to process markdown with math
+function processMarkdown(text) {
+    // Ensure text is a string
+    text = text.toString();
+    
+    // First protect math expressions by replacing them with placeholders
+    const mathExpressions = [];
+    let counter = 0;
+    
+    // Replace display math
+    text = text.replace(/\$\$([\s\S]*?)\$\$/g, function(match, math) {
+        const placeholder = `MATHBLOCK${counter}`;
+        mathExpressions.push({placeholder, math: match});
+        counter++;
+        return placeholder;
+    });
+    
+    // Replace inline math
+    text = text.replace(/\$([^\$]*?)\$/g, function(match, math) {
+        const placeholder = `MATHINLINE${counter}`;
+        mathExpressions.push({placeholder, math: match});
+        counter++;
+        return placeholder;
+    });
+    
+    // Parse markdown
+    let html = marked.parse(text);
+    
+    // Restore math expressions
+    mathExpressions.forEach(({placeholder, math}) => {
+        html = html.replace(placeholder, math);
+    });
+    
+    return html;
+}
+</script>
 </head>
 <body>
 <nav id="nav">
@@ -65,7 +126,7 @@ body {
 </footer>
 <script>
 const posts = [
-    { slug: 'hello-world', title: 'Hello World' }
+    { slug: 'Unsatisfied', title: 'The State Of Open Dataset Construction Is Deeply Unsatisfying' }
 ];
 function getParam(name) {
     const params = new URLSearchParams(window.location.search);
@@ -90,20 +151,28 @@ function showPost(slug) {
         return;
     }
     document.getElementById('title').textContent = post.title;
-    fetch(`posts/${post.slug}.md`)
+    const url = `posts/${post.slug}.md`;
+    console.log('Fetching:', url);
+    fetch(url)
         .then(resp => {
-            if (!resp.ok) throw new Error(resp.statusText);
+            console.log('Response status:', resp.status);
+            if (!resp.ok) {
+                throw new Error(`HTTP error! status: ${resp.status}`);
+            }
             return resp.text();
         })
         .then(text => {
-            document.getElementById('content').innerHTML = marked.parse(text);
-            if (window.MathJax) MathJax.typesetPromise();
+            console.log('Markdown content length:', text.length);
+            const parsedContent = processMarkdown(text);
+            console.log('Parsed HTML length:', parsedContent.length);
+            document.getElementById('content').innerHTML = parsedContent;
+            return MathJax.typesetPromise([document.getElementById('content')]);
         })
         .catch(err => {
-            console.error(err);
+            console.error('Error loading post:', err);
             document.getElementById('content').textContent =
-                'Error loading post. Ensure the Markdown file exists and run '\
-                + '`python3 -m http.server` if viewing locally.';
+                `Error loading post: ${err.message}. ` +
+                'Make sure you are accessing the site through the Python HTTP server (http://localhost:8000)';
         });
 }
 const slug = getParam('post');
