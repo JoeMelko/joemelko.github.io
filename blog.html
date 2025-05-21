@@ -91,13 +91,19 @@ function showPost(slug) {
     }
     document.getElementById('title').textContent = post.title;
     fetch(`posts/${post.slug}.md`)
-        .then(resp => resp.text())
+        .then(resp => {
+            if (!resp.ok) throw new Error(resp.statusText);
+            return resp.text();
+        })
         .then(text => {
             document.getElementById('content').innerHTML = marked.parse(text);
             if (window.MathJax) MathJax.typesetPromise();
         })
-        .catch(() => {
-            document.getElementById('content').textContent = 'Error loading post.';
+        .catch(err => {
+            console.error(err);
+            document.getElementById('content').textContent =
+                'Error loading post. Ensure the Markdown file exists and run '\
+                + '`python3 -m http.server` if viewing locally.';
         });
 }
 const slug = getParam('post');
