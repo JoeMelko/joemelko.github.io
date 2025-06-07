@@ -82,7 +82,7 @@ While these methods are still computationally prohibitive, they have already sho
 
 It seems natural to test previous *state-of-the-art* methods with influence-based utility metrics. For example:
 
-- influence-based classifiers [14]: training models to predict empirical influence rather than relying on human notions of quality
+- influence-based classifiers: training models to predict empirical influence rather than relying on human notions of quality (early work in [14])
 - scaling laws: we can mitigate the computation inefficiencies if we can find weak to strong transfer conditions like [13] did for hyperparameters
 - pre-training a reasoner: optimizing data selection based on reasoning trace influence scores may lead to zero-shot reasoning capabilities or a better starting point for post-training
 
