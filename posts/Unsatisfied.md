@@ -24,7 +24,7 @@ There are *so many* elements of uncertainty that stack when training large model
 
 Rigorous evaluation of large-scale data curation methods has traditionally been computationally prohibitive. However, as the bottleneck shifts from compute constraints toward data constraints, it becomes increasingly important to maximize what we learn from the data we already have.
 
-**Trading compute for data quality is becoming a better and better deal.**
+More concisely: *trading compute for data quality is becoming a better and better deal.*
 
 ## Why Current Methods Are Insufficient
 
