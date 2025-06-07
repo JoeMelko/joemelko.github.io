@@ -45,7 +45,9 @@ These methods are heavily dependent on what the practitioner determines to be "g
 
 ## The Best Way Forward
 
-Since models often learn in weird, unintuitive ways, an optimal dataset selection algorithm should *measure* what the model is learning from different examples. Luckily, we can do just that.
+It is far simpler to identify the things we would like a model to be able to do, than to guess what will help get us there. Since models often learn in weird, unintuitive ways, an optimal dataset selection algorithm should *measure* what the model is learning from different examples in relation to what we want it to know. Luckily, we can do just that.
+
+*This objective loosely resembles RL, while being at a different level of abstraction: episodes correspond to training run(s), and updates correspond to adjustments in data weighting.*
 
 ### Understanding Influence 
 
