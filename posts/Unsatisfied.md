@@ -1,19 +1,24 @@
-# The State Of Open Dataset Construction Is Deeply Unsatisfying
-
 While many people find it more exciting to work on algorithms and optimizers, the lifeblood of AI models is the data they are trained on.
 
 Simply put: *you need the right data to learn the right patterns*.
 
-### Quick Acknowledgement
+## High Level Framing
 
-The work done on DataComp [1] is a wonderful breeding ground for new ideas. It would be great if more people did some hill climbing there :)
+The goal of dataset selection is to find a subset of data that will lead to good model performance. Ideally, this can be framed as an optimization problem:
 
+$$
+\max_{S \subseteq D} U(\theta_S^*) \quad \text{s.t.} \quad |S| \leq k
+$$
+
+where $S$ is our selected subset, $D$ is the full dataset, $\theta_S^*$ represents a model trained on subset $S$ with parameters $\theta$, $U(\cdot)$ is some utility function, and $k$ is our target dataset size due to compute constraints.
+
+*Note: The above formulation is idealistic. In practice **most** algorithms use $\max_{S \subseteq D}\sum_{x \in S} U(x)$ as computing $\theta_S^*$ is prohibitively expensive*
 
 ## The Crux of My Complaint
 
-There are *so many* elements of uncertainty that stack when training large models. As a result, choosing primitives that minimize additional error is critical for any meta-algorithm like dataset selection/ordering.
+There are *so many* elements of uncertainty that stack when training large models. As a result, choosing primitives that minimize additional error is critical for any meta-algorithm like dataset selection.
 
-**Most current methods don't use the right measure of utility.**
+**Most existing methods don't pick the right utility function.**
 
 ## Why Current Methods Are Insufficient
 
@@ -30,62 +35,56 @@ but if we consider the level of rigor applied to other avenues of research, thes
 
 ### On Classifiers and Embeddings
 
-A natural starting point for large scale data filtering is classifiers. They are, perhaps, the most intuitive option when you step beyond the world of naive heuristics. They are also, currently, the best performing approach at scale with [2] providing strong results for multimodal filtering and an annoyingly simple FastText classifier is still the best open result filtering text corpora [3]. Additionally, there is related work on embeddings-based data curation [4,5] which selects data in order to maximize coverage of the embedding space and [6] which aims to match similarity to the target distribution of interest.
+A natural starting point for large scale data filtering is classifiers. They are, perhaps, the most intuitive option when you step beyond the world of naive heuristics. They are also, currently, the best performing approach at scale with [2] providing strong results for multimodal filtering and an annoyingly simple FastText classifier is still the best open result filtering text corpora [3]. Additionally, there is related work on embeddings-based data curation [4,5], which selects data in order to maximize coverage of the embedding space and [6] which aims to match similarity to the target distribution of interest.
 
 All of these methods are practically useful.
 
 ### So What's The Issue?
 
-These methods are heavily dependent on what the practitioner determines to be "good" data. However, there are a litany of examples (such as [7]) that show human notions of data quality are extremely limited and often anti-correlates with downstream model performance.
-
-They are based on the wrong primitives.
+These methods are heavily dependent on what the practitioner determines to be "good" data. However, there are a litany of examples (such as [7]) that show human notions of data quality are extremely limited and often anti-correlate with downstream model performance.
 
 ## The Best Way Forward
 
-Since models often learn in weird, unintuitive ways, an optimal dataset selection algorithm should *measure* what the model is learning from different examples. Within this context, filtering can turn into an optimization problem over this utility measurement.
-
-So what should this utility function be?
+Since models often learn in weird, unintuitive ways, an optimal dataset selection algorithm should *measure* what the model is learning from different examples. Luckily, we can do just that.
 
 ### Understanding Influence 
 
-We can directly measure the influence that training on some example or set of examples has on an output / task of interest using Influence Functions [8]. They are defined as follows:
+We can directly compute the effect that training on some example, or set of examples, has on an output / task of interest using Influence Functions [8]. They are defined as follows:
 
-$$I(z, z_{test}) = -\nabla_{\theta} L(z_{test}, \theta^*)^T H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*)$$
+$$
+I(z, z_{test}) = -\nabla_{\theta} L(z_{test}, \theta^*)^T H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*)
+$$
 
-where $\theta^*$ represents the optimal model parameters, $H_{\theta^*}$ is the Hessian matrix at $\theta^*$, $z$ is a training point, and $z_{test}$ is a test point we want to measure influence on. To start, there are 2 (very) apparent drawbacks of this approach:
+where $\theta^*$ represents the optimal model parameters, $H_{\theta^*}$ is the Hessian matrix at $\theta^*$, $z$ is a training point, and $z_{test}$ is a test point we want to measure influence on. To start, there are two very apparent limitations of this approach:
 
 - they are *very* expensive to compute
 - they only contain information from the point in training where they are computed
 
 As a result, there have been efforts to mitigate these problems by
 
-- reducing dimension using random projections
-- sampling from different model states 
+- reducing dimensionality using random projections
+- sampling across different model states 
 
-like in [9] and [10]. There is also recent work [11], which makes 2 further contributions:
+like in [9,10,11]. There is also recent work [12], which makes two further contributions:
 
-- computes influence over a period of training instead of a point in time
-- iteratively retrains on better datasets --> better "period in training"
+- computes influence over a period of training instead of at a single step
+- iterative retraining on better datasets yields updates on better "periods in training"
 
 While these methods are still computationally prohibitive, they have already shown promise in constrained settings, which gives me confidence that we are converging on a much better primitive for *utility*.
 
 ## So What's Next
 
-It seems natural to test previous *state-of-the-art* methods with influence-based utility as the scoring method. For example:
+It seems natural to test previous *state-of-the-art* methods with influence-based utility metrics. For example:
 
-- influence-based classifier: training models to predict empirical influence instead of human notions of quality
-- scaling laws: we can mitigate the computation inefficiencies if we can find weak to strong transfer conditions like [12] did for Hyperparameters
+- influence-based classifier: training models to predict empirical influence rather than relying on human notions of quality
+- scaling laws: we can mitigate the computation inefficiencies if we can find weak to strong transfer conditions like [13] did for hyperparameters
 - pre-training a reasoner: optimizing data selection based on reasoning trace influence scores may lead to zero-shot reasoning capabilities or a better starting point for post-training
 
 \+ many more things that are worth trying out.
 
-## Until Next Time
-
-If you got this far, let me know what you think + send me papers you think are cool!
-
 Thanks for reading :)
 
-## 
+---
 
 [1] Samir Yitzhak Gadre, Gabriel Ilharco, Alex Fang, Jonathan Hayase, Georgios Smyrnis, Thao Nguyen, Ryan Marten, Mitchell Wortsman, Dhruba Ghosh, Jieyu Zhang, Eyal Orgad, Rahim Entezari, Giannis Daras, Sarah Pratt, Vivek Ramanujan, Yonatan Bitton, Kalyani Marathe, Stephen Mussmann, Richard Vencu, Mehdi Cherti, Ranjay Krishna, Pang Wei Koh, Olga Saukh, Alexander Ratner, Shuran Song, Hannaneh Hajishirzi, Ali Farhadi, Romain Beaumont, Sewoong Oh, Alex Dimakis, Jenia Jitsev, Yair Carmon, Vaishaal Shankar, Ludwig Schmidt. DataComp: In Search of the Next Generation of Multimodal Datasets. arXiv preprint arXiv:2304.14108 (2023).
 
@@ -107,6 +106,8 @@ Thanks for reading :)
 
 [10] Mengzhou Xia, Sadhika Malladi, Danqi Chen. LESS: Selecting Influential Data for Targeted Instruction Tuning. arXiv preprint arXiv:2402.04333 (2024).
 
-[11] Logan Engstrom, Andrew Ilyas, Benjamin Chen, Axel Feldmann, William Moses, Aleksander Madry. Optimizing ML Training with Metagradient Descent. arXiv preprint arXiv:2503.13751 (2025).
+[11] Qirun Dai, Weijia Shi, Jiacheng Ye, Rongzhi Zhang, Xinyu Dai, Yulan He, Shujian Huang, Jiajun Chen. Improving Influence-based Instruction Tuning Data Selection for Balanced Learning of Diverse Capabilities. arXiv preprint arXiv:2501.12147 (2025).
 
-[12] Greg Yang, Edward J. Hu, Igor Babuschkin, Szymon Sidor, Xiaodong Liu, David Farhi, Nick Ryder, Jakub Pachocki, Weizhu Chen, and Jianfeng Gao. Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer. Advances in Neural Information Processing Systems 34, 2021.
+[12] Logan Engstrom, Andrew Ilyas, Benjamin Chen, Axel Feldmann, William Moses, Aleksander Madry. Optimizing ML Training with Metagradient Descent. arXiv preprint arXiv:2503.13751 (2025).
+
+[13] Greg Yang, Edward J. Hu, Igor Babuschkin, Szymon Sidor, Xiaodong Liu, David Farhi, Nick Ryder, Jakub Pachocki, Weizhu Chen, and Jianfeng Gao. Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer. Advances in Neural Information Processing Systems 34, 2021.

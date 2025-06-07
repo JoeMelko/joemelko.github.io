@@ -12,15 +12,51 @@ body {
     padding: 20px;
     line-height: 1.6;
 }
+
+/* Style for horizontal rule */
+hr {
+    margin: 40px 0;
+    border: none;
+    border-top: 1px solid #eee;
+}
+
+/* Style for citations */
+hr ~ p {
+    font-size: 0.9em;
+    color: #666;
+    padding-left: 2em;
+    text-indent: -2em;
+    margin-bottom: 1em;
+}
+
+/* Style for inline math */
+.MathJax {
+    display: inline-block;
+}
+
 #nav {
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 20px;
+    justify-content: flex-start;
+    margin-bottom: 40px;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
 }
 #nav a {
     text-decoration: none;
     color: #333;
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 1.1em;
+    margin-right: 20px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+#nav a:hover {
+    background-color: #f5f5f5;
+}
+#nav a.active {
+    color: #000;
+    font-weight: 600;
 }
 #socials {
     display: flex;
@@ -41,6 +77,32 @@ body {
     width: 24px;
     height: 24px;
 }
+
+/* Style for equation numbers */
+mjx-container[display="true"] {
+    display: block;
+    text-align: center;
+    margin: 1.5em 0;
+    width: 100%;
+}
+
+mjx-container.MathJax.CtxtMenu_Attached_0 {
+    display: inline-block !important;
+}
+
+/* Ensure equation numbers are visible */
+mjx-container > svg {
+    display: inline-block;
+    margin: auto;
+}
+
+mjx-container > .MJX-TEX {
+    text-align: left;
+}
+
+.markdown-body p {
+    text-align: justify;
+}
 </style>
 <!-- Marked for Markdown parsing -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -54,8 +116,7 @@ window.MathJax = {
     }
 };
 </script>
-<!-- MathJax for equations -->
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <script>
 // Configure marked
 marked.use({
@@ -83,7 +144,11 @@ function processMarkdown(text) {
     // Replace display math
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, function(match, math) {
         const placeholder = `MATHBLOCK${counter}`;
-        mathExpressions.push({placeholder, math: match});
+        // Wrap display math in a centered div
+        mathExpressions.push({
+            placeholder,
+            math: `<div style="display:flex;justify-content:center;width:100%">${match}</div>`
+        });
         counter++;
         return placeholder;
     });
@@ -110,8 +175,18 @@ function processMarkdown(text) {
 </head>
 <body>
 <nav id="nav">
-    <a href="index.html">Home</a>
+    <a href="index.html" id="home-link">Home</a>
+    <a href="blog.html" id="blog-link">Blog</a>
 </nav>
+<script>
+// Add active state to current page
+const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+document.querySelectorAll('#nav a').forEach(link => {
+    if (link.getAttribute('href') === currentPage) {
+        link.classList.add('active');
+    }
+});
+</script>
 <h1 id="title">Blog</h1>
 <div id="content"></div>
 <footer>
@@ -153,7 +228,13 @@ function showPost(slug) {
     document.getElementById('title').textContent = post.title;
     const url = `posts/${post.slug}.md`;
     console.log('Fetching:', url);
-    fetch(url)
+    fetch(url, {
+        cache: 'no-store',
+        headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        }
+    })
         .then(resp => {
             console.log('Response status:', resp.status);
             if (!resp.ok) {
@@ -166,7 +247,10 @@ function showPost(slug) {
             const parsedContent = processMarkdown(text);
             console.log('Parsed HTML length:', parsedContent.length);
             document.getElementById('content').innerHTML = parsedContent;
-            return MathJax.typesetPromise([document.getElementById('content')]);
+            // Wait for MathJax to be ready
+            if (window.MathJax && window.MathJax.typeset) {
+                window.MathJax.typeset();
+            }
         })
         .catch(err => {
             console.error('Error loading post:', err);
