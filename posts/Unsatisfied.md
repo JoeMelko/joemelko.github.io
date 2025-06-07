@@ -20,6 +20,10 @@ There are *so many* elements of uncertainty that stack when training large model
 
 **Most existing methods don't pick the right utility function.**
 
+## A Quick Note On Timing
+
+Rigorous testing for large-scale data curation has traditionally been computationally prohibitive. However, as the bottleneck shifts from compute constraints toward data constraints, we have the opportunity to pursue more elegant ideas designed explicitly to maximize what we learn from the data we already have.
+
 ## Why Current Methods Are Insufficient
 
 ### Getting the simple stuff out of the way
