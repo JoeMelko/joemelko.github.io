@@ -2,7 +2,7 @@ While many people find it more exciting to work on algorithms and optimizers, th
 
 Simply put: *you need the right data to learn the right patterns*.
 
-## High Level Framing
+## High-Level Framing
 
 The goal of dataset selection is to find a subset of data that will lead to good model performance. Ideally, this can be framed as an optimization problem:
 
@@ -12,7 +12,7 @@ $$
 
 where $S$ is our selected subset, $D$ is the full dataset, $\theta_S^*$ represents a model trained on subset $S$ with parameters $\theta$, $U(\cdot)$ is some utility function, and $k$ is our target dataset size due to compute constraints.
 
-*Note: The above formulation is idealistic. In practice **most** algorithms use $\max_{S \subseteq D}\sum_{x \in S} U(x)$ as computing $\theta_S^*$ is prohibitively expensive*
+*Note: The above formulation is idealistic. In practice **most** algorithms use $\max_{S \subseteq D}\sum_{x \in S} U(x)$ as computing $\theta_S^*$ is prohibitively expensive.*
 
 ## The Crux of My Complaint
 
@@ -49,7 +49,7 @@ These methods are heavily dependent on what the practitioner determines to be "g
 
 ## The Best Way Forward
 
-It is far simpler to identify the things we would like a model to be able to do, than to guess what will help get us there. Since models often learn in unintuitive ways, an optimal dataset selection algorithm should *measure* what the model is learning from different examples in relation to what we want it to know. Luckily, we can do just that.
+It is far simpler to identify the things we would like a model to be able to do than to guess what will help get us there. Since models often learn in unintuitive ways, an optimal dataset selection algorithm should *measure* what the model is learning from different examples in relation to what we want it to know. Luckily, we can do just that.
 
 *This setup loosely resembles RL, while being at a different level of abstraction: episodes correspond to training runs, and updates correspond to adjustments in data weighting.*
 
@@ -71,7 +71,7 @@ As a result, there have been efforts to mitigate these problems by
 - reducing dimensionality using random projections
 - sampling across different model states 
 
-like in [9,10,11]. There is also recent work [12], which makes two further contributions:
+as demonstrated in [9,10,11]. Recent work [12] provides two additional contributions:
 
 - computes influence over a period of training instead of at a single step
 - iterative retraining on better datasets yields updates on better "periods in training"
