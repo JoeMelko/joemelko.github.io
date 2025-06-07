@@ -22,7 +22,7 @@ There are *so many* elements of uncertainty that stack when training large model
 
 ## A Quick Note On Timing
 
-Rigorous testing for large-scale data curation has traditionally been computationally prohibitive. However, as the bottleneck shifts from compute constraints toward data constraints, we have the opportunity to pursue more elegant ideas designed explicitly to maximize what we learn from the data we already have.
+Rigorous testing for large-scale data curation has traditionally been computationally prohibitive. However, as the bottleneck shifts from compute constraints toward data constraints, it becomes increasingly important to maximize what we learn from the data we already have.
 
 ## Why Current Methods Are Insufficient
 
