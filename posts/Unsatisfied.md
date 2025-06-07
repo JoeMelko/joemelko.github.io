@@ -78,7 +78,7 @@ While these methods are still computationally prohibitive, they have already sho
 
 It seems natural to test previous *state-of-the-art* methods with influence-based utility metrics. For example:
 
-- influence-based classifier: training models to predict empirical influence rather than relying on human notions of quality
+- influence-based classifiers [14]: training models to predict empirical influence rather than relying on human notions of quality
 - scaling laws: we can mitigate the computation inefficiencies if we can find weak to strong transfer conditions like [13] did for hyperparameters
 - pre-training a reasoner: optimizing data selection based on reasoning trace influence scores may lead to zero-shot reasoning capabilities or a better starting point for post-training
 
@@ -113,3 +113,5 @@ Thanks for reading :)
 [12] Logan Engstrom, Andrew Ilyas, Benjamin Chen, Axel Feldmann, William Moses, Aleksander Madry. Optimizing ML Training with Metagradient Descent. arXiv preprint arXiv:2503.13751 (2025).
 
 [13] Greg Yang, Edward J. Hu, Igor Babuschkin, Szymon Sidor, Xiaodong Liu, David Farhi, Nick Ryder, Jakub Pachocki, Weizhu Chen, and Jianfeng Gao. Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer. Advances in Neural Information Processing Systems 34, 2021.
+
+[14] Zichun Yu, Fei Peng, Jie Lei, Arnold Overwijk, Wen‑tau Yih, Chenyan Xiong. Data‑Efficient Pretraining with Group‑Level Data Influence Modeling. arXiv preprint arXiv:2502.14709 (2025).
