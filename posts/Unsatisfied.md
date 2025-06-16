@@ -68,7 +68,7 @@ where $\theta^*$ represents the optimal model parameters, $H_{\theta^*}$ is the 
 - they are *very* expensive to compute
 - they only contain information from the point in training where they are computed
 
-As a result, there have been efforts to mitigate these problems by
+As a result, there have been efforts to mitigate these problems by:
 
 - reducing dimensionality using random projections
 - sampling across different model states 
@@ -82,17 +82,17 @@ While these methods are still computationally prohibitive, they have already sho
 
 <h2 id="so-whats-next">So What's Next</h2>
 
-There is still plenty of work to be done to mitigate the limitations of current gradient-based approaches, such as
+There is still plenty of work needed to mitigate the limitations of current gradient-based approaches, such as:
 
 - <u>**designing minimally lossy dimensionality reduction**</u>: pseudo-random projections carry nice guarantees, but in practice we should be able to construct or learn a better low-rank representation
 - modeling temporal influence: predict how influence adapts during training [13] can aid methods like [12] towards the eventual goal of scaling laws and weak-to-strong transfer, like [14] did for hyperparameters
 
-It also seems natural to test hybrid approaches that combine the efficiency of prior methods with influence as the underlying utility measure, for example
+It also seems natural to test hybrid approaches that combine the efficiency of prior methods with influence as the underlying utility measure, for example:
 
 - training influence-based classifiers: create models to predict empirical influence rather than relying on human notions of quality (early work in [15])
 - <u>**experimenting with tiered approaches**</u>: assigning influence to clusters or sources instead of to individual samples or documents
 
-Finally, there are some more speculative directions that could be worth exploring, like
+Finally, there are some more speculative directions that could be worth exploring, like:
 
 - pre-training a reasoner: optimizing data via reasoning-trace influence may lead to zero-shot reasoning capabilities or a better base for post-training
 - guiding synthetic data generation: using influence scores to greedily fill capability gaps in training data
