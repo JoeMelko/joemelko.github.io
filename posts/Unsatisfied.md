@@ -1,4 +1,3 @@
-## Table of Contents
 - [High-Level Framing](#high-level-framing)
 - [The Crux of My Complaint](#the-crux-of-my-complaint)
 - [A Quick Note On Timing](#a-quick-note-on-timing)
