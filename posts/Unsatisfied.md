@@ -82,13 +82,22 @@ While these methods are still computationally prohibitive, they have already sho
 
 <h2 id="so-whats-next">So What's Next</h2>
 
-It seems natural to test previous *state-of-the-art* methods with influence-based utility metrics. For example:
+There is still plenty of work to be done on reducing the limitations of the primitives, such as:
 
-- influence-based classifiers: training models to predict empirical influence rather than relying on human notions of quality (early work in [13])
-- scaling laws: we can mitigate the computation inefficiencies if we can find weak to strong transfer conditions like [14] did for hyperparameters
-- pre-training a reasoner: optimizing data selection based on reasoning trace influence scores may lead to zero-shot reasoning capabilities or a better starting point for post-training
+- **designing minimally lossy dimensionality reduction**: pseudo-random projections carry nice guarantees, but in practice we should be able to construct or learn a better low-rank representation
+- modeling temporal influence: predict how influence adapts during training [15] can aid methods like [12] towards the eventual goal of scaling laws and weak-to-strong transfer, like [14] did for hyperparameters
 
-\+ many more things that are worth trying out.
+It also seems natural to test hybrid approaches that combine the efficiency of prior methods with influence as the underlying utility measure, for example:
+
+- training influence-based classifiers: create models to predict empirical influence rather than relying on human notions of quality (early work in [13])
+- **experimenting with tiered approaches**: assigning influence to clusters or sources instead of to individual samples or documents
+
+Finally, there are some more speculative directions that could be worth exploring:
+
+- pre-training a reasoner: optimizing data via reasoning-trace influence may lead to zero-shot reasoning capabilities or a better base for post-training
+- guiding synthetic data generation: using influence scores to greedily fill capability gaps in training data
+
+*Note: items in bold are areas I am actively working on and will share more about soon!*
 
 Thanks for reading :)
 
@@ -121,3 +130,5 @@ Thanks for reading :)
 [13] Zichun Yu, Fei Peng, Jie Lei, Arnold Overwijk, Wen‑tau Yih, Chenyan Xiong. Data‑Efficient Pretraining with Group‑Level Data Influence Modeling. arXiv preprint arXiv:2502.14709 (2025).
 
 [14] Greg Yang, Edward J. Hu, Igor Babuschkin, Szymon Sidor, Xiaodong Liu, David Farhi, Nick Ryder, Jakub Pachocki, Weizhu Chen, and Jianfeng Gao. Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer. Advances in Neural Information Processing Systems 34, 2021.
+
+[15] Jiachen T. Wang, Dawn Song, James Zou, Prateek Mittal, Ruoxi Jia. Capturing the Temporal Dependence of Training Data Influence. arXiv preprint arXiv:2412.09538 (2024). 
