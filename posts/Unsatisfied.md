@@ -41,7 +41,7 @@ but if we consider the level of rigor applied to other avenues of research, thes
 
 ### On Classifiers and Embeddings
 
-A natural starting point for large scale data filtering is classifiers. They are, perhaps, the most intuitive option when you step beyond the world of naive heuristics. They are also, currently, the best performing approach at scale with [2] providing strong results for multimodal filtering and an annoyingly simple FastText classifier is still the best open result filtering text corpora [3]. Additionally, there is related work on embeddings-based data curation [4,5], which selects data in order to maximize coverage of the embedding space and [6] which aims to match similarity to the target distribution of interest.
+A natural starting point for large scale data filtering is classifiers. They are, perhaps, the most intuitive option when you step beyond the world of naive heuristics. They are also, currently, the best performing approach at scale with [2] providing strong results for multimodal filtering and an annoyingly simple FastText classifier is still the best open result for filtering text corpora [3]. Additionally, there is related work on embeddings-based data curation [4,5], which selects data in order to maximize coverage of the embedding space and [6] which aims to match similarity to the target distribution of interest.
 
 All of these methods are practically useful.
 
