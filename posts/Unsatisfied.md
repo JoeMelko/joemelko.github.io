@@ -1,55 +1,15 @@
 ## Table of Contents
-<style>
-.toc-item {
-    margin: 8px 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-.toc-link {
-    text-decoration: none;
-    color: inherit;
-    font-size: 1.1em;
-    font-weight: 500;
-}
-.toc-subitem {
-    margin: 6px 0 6px 20px;
-    display: none;
-}
-.toc-parent:hover .toc-subitem {
-    display: block;
-}
-</style>
+- [High-Level Framing](#high-level-framing)
+- [The Crux of My Complaint](#the-crux-of-my-complaint)
+- [A Quick Note On Timing](#a-quick-note-on-timing)
+- [Why Current Methods Are Insufficient](#why-current-methods-are-insufficient)
+  - [Getting the simple stuff out of the way](#getting-the-simple-stuff-out-of-the-way)
+  - [On Classifiers and Embeddings](#on-classifiers-and-embeddings)
+  - [So What's The Issue?](#so-whats-the-issue)
+- [The Best Way Forward](#the-best-way-forward)
+  - [Understanding Influence](#understanding-influence)
+- [So What's Next](#so-whats-next)
 
-<div class="toc-item toc-parent">
-    <a href="#high-level-framing" class="toc-link">High-Level Framing</a>
-</div>
-
-<div class="toc-item toc-parent">
-    <a href="#the-crux-of-my-complaint" class="toc-link">The Crux of My Complaint</a>
-</div>
-
-<div class="toc-item toc-parent">
-    <a href="#a-quick-note-on-timing" class="toc-link">A Quick Note On Timing</a>
-</div>
-
-<div class="toc-item toc-parent">
-    <a href="#why-current-methods-are-insufficient" class="toc-link">Why Current Methods Are Insufficient</a>
-    <div class="toc-subitem">
-        <a href="#getting-the-simple-stuff-out-of-the-way" class="toc-link">Getting the simple stuff out of the way</a>
-        <a href="#on-classifiers-and-embeddings" class="toc-link">On Classifiers and Embeddings</a>
-        <a href="#so-whats-the-issue" class="toc-link">So What's The Issue?</a>
-    </div>
-</div>
-
-<div class="toc-item toc-parent">
-    <a href="#the-best-way-forward" class="toc-link">The Best Way Forward</a>
-    <div class="toc-subitem">
-        <a href="#understanding-influence" class="toc-link">Understanding Influence</a>
-    </div>
-</div>
-
-<div class="toc-item toc-parent">
-    <a href="#so-whats-next" class="toc-link">So What's Next</a>
-</div>
 
 While many people find it more exciting to work on algorithms and optimizers, the lifeblood of AI models is the data they are trained on.
 
