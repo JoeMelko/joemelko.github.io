@@ -1,16 +1,3 @@
-## Table of Contents
-- <a href="#high-level-framing" style="color: #333333; text-decoration: none">High-Level Framing</a>
-- <a href="#the-crux-of-my-complaint" style="color: #333333; text-decoration: none">The Crux of My Complaint</a>
-- <a href="#a-quick-note-on-timing" style="color: #333333; text-decoration: none">A Quick Note On Timing</a>
-- <a href="#why-current-methods-are-insufficient" style="color: #333333; text-decoration: none">Why Current Methods Are Insufficient</a>
-  - <a href="#getting-the-simple-stuff-out-of-the-way" style="color: #333333; text-decoration: none">Getting the simple stuff out of the way</a>
-  - <a href="#on-classifiers-and-embeddings" style="color: #333333; text-decoration: none">On Classifiers and Embeddings</a>
-  - <a href="#so-whats-the-issue" style="color: #333333; text-decoration: none">So What's The Issue?</a>
-- <a href="#the-best-way-forward" style="color: #333333; text-decoration: none">The Best Way Forward</a>
-  - <a href="#understanding-influence" style="color: #333333; text-decoration: none">Understanding Influence</a>
-- <a href="#so-whats-next" style="color: #333333; text-decoration: none">So What's Next</a>
-
-
 While many people find it more exciting to work on algorithms and optimizers, the lifeblood of AI models is the data they are trained on.
 
 Simply put: *you need the right data to learn the right patterns*.
