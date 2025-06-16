@@ -15,7 +15,7 @@ While many people find it more exciting to work on algorithms and optimizers, th
 
 Simply put: *you need the right data to learn the right patterns*.
 
-## High-Level Framing {#high-level-framing}
+<h2 id="high-level-framing">High-Level Framing</h2>
 
 The goal of dataset selection is to find a subset of data that will lead to good model performance. Ideally, this can be framed as an optimization problem:
 
@@ -27,21 +27,21 @@ where $S$ is our selected subset, $D$ is the full dataset, $\theta_S^*$ represen
 
 *Note: The above formulation is idealistic. In practice **most** algorithms use $\max_{S \subseteq D}\sum_{x \in S} U(x)$ as computing $\theta_S^*$ is prohibitively expensive.*
 
-## The Crux of My Complaint {#the-crux-of-my-complaint}
+<h2 id="the-crux-of-my-complaint">The Crux of My Complaint</h2>
 
 There are *so many* elements of uncertainty that stack when training large models. As a result, choosing primitives that minimize additional error is critical for any meta-algorithm like dataset selection.
 
 **Most existing methods don't pick the right utility function.**
 
-## A Quick Note On Timing {#a-quick-note-on-timing}
+<h2 id="a-quick-note-on-timing">A Quick Note On Timing</h2>
 
 Rigorous evaluation of large-scale data curation methods has traditionally been computationally prohibitive. However, as the bottleneck shifts from compute constraints toward data constraints, it becomes increasingly important to maximize what we learn from the data we already have.
 
 More concisely: *trading compute for data quality is becoming a better and better deal.*
 
-## Why Current Methods Are Insufficient {#why-current-methods-are-insufficient}
+<h2 id="why-current-methods-are-insufficient">Why Current Methods Are Insufficient</h2>
 
-### Getting the simple stuff out of the way {#getting-the-simple-stuff-out-of-the-way}
+<h3 id="getting-the-simple-stuff-out-of-the-way">Getting the simple stuff out of the way</h3>
 
 I will focus on *slightly* more rigorous methods for the rest of this post, but will lead with the fact that
 
@@ -52,23 +52,23 @@ I will focus on *slightly* more rigorous methods for the rest of this post, but 
 
 but if we consider the level of rigor applied to other avenues of research, these are *woefully* trivial baselines.
 
-### On Classifiers and Embeddings {#on-classifiers-and-embeddings}
+<h3 id="on-classifiers-and-embeddings">On Classifiers and Embeddings</h3>
 
 A natural starting point for large scale data filtering is classifiers. They are, perhaps, the most intuitive option when you step beyond the world of naive heuristics. They are also, currently, the best performing approach at scale with [2] providing strong results for multimodal filtering and an annoyingly simple FastText classifier is still the best open result for filtering text corpora [3]. Additionally, there is related work on embeddings-based data curation [4,5], which selects data in order to maximize coverage of the embedding space and [6] which aims to match similarity to the target distribution of interest.
 
 All of these methods are practically useful.
 
-### So What's The Issue? {#so-whats-the-issue}
+<h3 id="so-whats-the-issue">So What's The Issue?</h3>
 
 These methods are heavily dependent on what the practitioner determines to be "good" data. However, there are a litany of examples (such as [7]) that show human notions of data quality are extremely limited and often anti-correlate with downstream model performance.
 
-## The Best Way Forward {#the-best-way-forward}
+<h2 id="the-best-way-forward">The Best Way Forward</h2>
 
 It is far simpler to identify the things we would like a model to be able to do than to guess what will help get us there. Since models often learn in unintuitive ways, an optimal dataset selection algorithm should *measure* what the model is learning from different examples in relation to what we want it to know. Luckily, we can do just that.
 
 *This setup loosely resembles RL, while being at a different level of abstraction: episodes correspond to training runs, and updates correspond to adjustments in data weighting.*
 
-### Understanding Influence {#understanding-influence}
+<h3 id="understanding-influence">Understanding Influence</h3>
 
 We can directly compute the effect that training on some example, or set of examples, has on an output / task of interest using Influence Functions [8]. They are defined as follows:
 
@@ -93,7 +93,7 @@ as demonstrated in [9,10,11]. Recent work [12] provides two additional contribut
 
 While these methods are still computationally prohibitive, they have already shown promise in constrained settings, which gives me confidence that we are converging on a much better primitive for *utility*.
 
-## So What's Next {#so-whats-next}
+<h2 id="so-whats-next">So What's Next</h2>
 
 It seems natural to test previous *state-of-the-art* methods with influence-based utility metrics. For example:
 
