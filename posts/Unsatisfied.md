@@ -84,20 +84,20 @@ While these methods are still computationally prohibitive, they have already sho
 
 There is still plenty of work to be done to mitigate the limitations of current gradient-based approaches, such as
 
-- **designing minimally lossy dimensionality reduction**: pseudo-random projections carry nice guarantees, but in practice we should be able to construct or learn a better low-rank representation
+- <u>**designing minimally lossy dimensionality reduction**</u>: pseudo-random projections carry nice guarantees, but in practice we should be able to construct or learn a better low-rank representation
 - modeling temporal influence: predict how influence adapts during training [13] can aid methods like [12] towards the eventual goal of scaling laws and weak-to-strong transfer, like [14] did for hyperparameters
 
 It also seems natural to test hybrid approaches that combine the efficiency of prior methods with influence as the underlying utility measure, for example
 
 - training influence-based classifiers: create models to predict empirical influence rather than relying on human notions of quality (early work in [15])
-- **experimenting with tiered approaches**: assigning influence to clusters or sources instead of to individual samples or documents
+- <u>**experimenting with tiered approaches**</u>: assigning influence to clusters or sources instead of to individual samples or documents
 
 Finally, there are some more speculative directions that could be worth exploring, like
 
 - pre-training a reasoner: optimizing data via reasoning-trace influence may lead to zero-shot reasoning capabilities or a better base for post-training
 - guiding synthetic data generation: using influence scores to greedily fill capability gaps in training data
 
-*Note: ideas in bold are areas I am actively working on and will share more about soon!*
+*Note: I am actively working on the ideas that are underlined + bold and will share more soon!*
 
 Thanks for reading :)
 
