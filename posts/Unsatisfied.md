@@ -82,7 +82,7 @@ While these methods are still computationally prohibitive, they have already sho
 
 <h2 id="so-whats-next">So What's Next</h2>
 
-There is still plenty of work to be done on reducing the limitations of the primitives, such as:
+There is still plenty of work to be done to mitigate the limitations of current gradient-based approaches, such as:
 
 - **designing minimally lossy dimensionality reduction**: pseudo-random projections carry nice guarantees, but in practice we should be able to construct or learn a better low-rank representation
 - modeling temporal influence: predict how influence adapts during training [15] can aid methods like [12] towards the eventual goal of scaling laws and weak-to-strong transfer, like [14] did for hyperparameters
