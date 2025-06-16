@@ -1,14 +1,14 @@
 ## Table of Contents
-- [High-Level Framing](#high-level-framing)
-- [The Crux of My Complaint](#the-crux-of-my-complaint)
-- [A Quick Note On Timing](#a-quick-note-on-timing)
-- [Why Current Methods Are Insufficient](#why-current-methods-are-insufficient)
-  - [Getting the simple stuff out of the way](#getting-the-simple-stuff-out-of-the-way)
-  - [On Classifiers and Embeddings](#on-classifiers-and-embeddings)
-  - [So What's The Issue?](#so-whats-the-issue)
-- [The Best Way Forward](#the-best-way-forward)
-  - [Understanding Influence](#understanding-influence)
-- [So What's Next](#so-whats-next)
+- <a href="#high-level-framing" style="text-decoration: none; color: inherit;">High-Level Framing</a>
+- <a href="#the-crux-of-my-complaint" style="text-decoration: none; color: inherit;">The Crux of My Complaint</a>
+- <a href="#a-quick-note-on-timing" style="text-decoration: none; color: inherit;">A Quick Note On Timing</a>
+- <a href="#why-current-methods-are-insufficient" style="text-decoration: none; color: inherit;">Why Current Methods Are Insufficient</a>
+  - <a href="#getting-the-simple-stuff-out-of-the-way" style="text-decoration: none; color: inherit;">Getting the simple stuff out of the way</a>
+  - <a href="#on-classifiers-and-embeddings" style="text-decoration: none; color: inherit;">On Classifiers and Embeddings</a>
+  - <a href="#so-whats-the-issue" style="text-decoration: none; color: inherit;">So What's The Issue?</a>
+- <a href="#the-best-way-forward" style="text-decoration: none; color: inherit;">The Best Way Forward</a>
+  - <a href="#understanding-influence" style="text-decoration: none; color: inherit;">Understanding Influence</a>
+- <a href="#so-whats-next" style="text-decoration: none; color: inherit;">So What's Next</a>
 
 
 While many people find it more exciting to work on algorithms and optimizers, the lifeblood of AI models is the data they are trained on.
