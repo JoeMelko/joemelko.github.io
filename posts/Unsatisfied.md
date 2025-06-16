@@ -1,13 +1,14 @@
-- [High-Level Framing](#high-level-framing)
-- [The Crux of My Complaint](#the-crux-of-my-complaint)
-- [A Quick Note On Timing](#a-quick-note-on-timing)
-- [Why Current Methods Are Insufficient](#why-current-methods-are-insufficient)
-  - [Getting the simple stuff out of the way](#getting-the-simple-stuff-out-of-the-way)
-  - [On Classifiers and Embeddings](#on-classifiers-and-embeddings)
-  - [So What's The Issue?](#so-whats-the-issue)
-- [The Best Way Forward](#the-best-way-forward)
-  - [Understanding Influence](#understanding-influence)
-- [So What's Next](#so-whats-next)
+## Table of Contents
+- <span style="color: #333333">[High-Level Framing](#high-level-framing)</span>
+- <span style="color: #333333">[The Crux of My Complaint](#the-crux-of-my-complaint)</span>
+- <span style="color: #333333">[A Quick Note On Timing](#a-quick-note-on-timing)</span>
+- <span style="color: #333333">[Why Current Methods Are Insufficient](#why-current-methods-are-insufficient)</span>
+  - <span style="color: #333333">[Getting the simple stuff out of the way](#getting-the-simple-stuff-out-of-the-way)</span>
+  - <span style="color: #333333">[On Classifiers and Embeddings](#on-classifiers-and-embeddings)</span>
+  - <span style="color: #333333">[So What's The Issue?](#so-whats-the-issue)</span>
+- <span style="color: #333333">[The Best Way Forward](#the-best-way-forward)</span>
+  - <span style="color: #333333">[Understanding Influence](#understanding-influence)</span>
+- <span style="color: #333333">[So What's Next](#so-whats-next)</span>
 
 
 While many people find it more exciting to work on algorithms and optimizers, the lifeblood of AI models is the data they are trained on.
