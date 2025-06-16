@@ -1,4 +1,4 @@
-While many people find it more exciting to work on algorithms and optimizers, the lifeblood of AI models is the data they are trained on.
+While it can often seem more exciting to work on algorithms and optimizers, the lifeblood of AI models is the data they are trained on.
 
 Simply put: *you need the right data to learn the right patterns*.
 
