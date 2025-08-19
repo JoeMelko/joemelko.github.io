@@ -1,6 +1,7 @@
 <style>
 body { background-color: #121212; color: #e6e6e6; }
-blockquote { background-color: #1f1f1f; border: 1px solid currentColor; border-radius: 6px; padding: 0.75em 1em; }
+blockquote { background-color: #1f1f1f; border: 1px solid currentColor; border-radius: 6px; padding: 0.75em 1em; line-height: 1.45; }
+blockquote li { margin: 0.15em 0; }
 /* Add lines under model-size/tokens header row and under iteration-number header row */
 table { border-top: 3px solid #ffffff; border-bottom: 3px solid #ffffff; }
 table thead tr:first-child th { border-bottom: 2px solid #cfcfcf; }
@@ -124,7 +125,7 @@ When applied iteratively, via Algorithm 2, our optimizer refines the cluster log
 > - Procedure
 >   1. For $t = 0,1,\dots,T-1$:
 >      - Sample $S_t \sim \mathrm{mix}(\mathrm{softmax}(\mathbf{logits}^{(t)}))$ and train a model $\theta^{(t)} = A(S_t)$.
->      - Call Algorithm 1 with $(\theta^{(t)},\mathcal{V},C,\text{logit}^{(t)}, \eta, max_{step})$ to obtain $\text{logits}^{(t+1)}$.
+>      - $$\text{logits}^{(t+1)} = \text{TerRIFIC.step}(\theta^{(t)},\mathcal{V},C,\text{logit}^{(t)}, \eta, max_{step})$.
 >   2. return $\text{logits}^{(T)}$
 
 ## Experimental Setup
