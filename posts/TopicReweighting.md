@@ -70,7 +70,7 @@ $$
 P_{d_0}\, W\, P_{d_1}^{\top} \;\in\; \mathbb{R}^{\sqrt{d} \times \sqrt{d}} \tag{5}
 $$
 
-where $W\!\in\!\mathbb{R}^{n\times m}$ is a gradient matrix, and we define $P_{d_0},P_{d_1}\!\sim\!\mathcal N(0,1/\sqrt d)$ with $P_{d_0}\!\in\!\mathbb{R}^{\sqrt d \times m}$, $P_{d_1}\!\in\!\mathbb{R}^{n \times \sqrt d}$. To further decrease the representation size, layers are concatenated into B blocks. To accommodate characteristic differences between attention and MLP layers, these are concatenated separately.
+where $W\!\in\!\mathbb{R}^{n\times m}$ is a gradient matrix, and we define $P_{d_0},P_{d_1}\!\sim\!\mathcal N(0,1/\sqrt d)$ with $P_{d_0}\!\in\!\mathbb{R}^{\sqrt d \times m}$, $P_{d_1}\!\in\!\mathbb{R}^{n \times \sqrt d}$. To further decrease the representation size, layers are concatenated into $B$ blocks. To accommodate characteristic differences between attention and MLP layers, these are concatenated separately.
 
 Under a local quadratic approximation and with $R$ estimating the projected Fisher, the alignment $\langle G_{\theta}(z),\, G_{\theta}(z_{test}) \rangle$ is a stable approximation for $\nabla_{\theta} L(z_{test}, \theta^*)^{\top} H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*)$, enabling Eq. (3)-style influence ranking without materializing $H_{\theta^*}^{-1}$.
 
