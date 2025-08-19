@@ -9,8 +9,6 @@ table thead tr:nth-child(2) th { border-bottom: 1px solid #e5e5e5; }
 table th, table td { text-align: center !important; }
 </style>
 
-> TL;DR: We learn sampling weights over arbitrary data clusters using efficient influence approximations. We introduce m‑TrackStar to stably approximate influence and a meta‑optimizer (TerRIFIC) to iteratively update cluster weights based on cluster–target influence approximations. Utilizing data weights learned with TerRIFIC results in significant performance improvements over a (very) strong baseline. Our method is simple, scalable, and agnostic to how clusters are defined.
-
 <img src="../media/l2l/results1.png" alt="Figure 1: TerRIFIC Overview" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 
 <p style="text-align:center"><em>Figure 1: TerRIFIC iteratively improves data weights resulting in drastically lower perplexity across various held out datasets</em></p>
@@ -231,7 +229,7 @@ As shown in Table 2, our method frequently outperforms the baseline mix, both on
 
 We use these downstream evaluations, largely, as a secondary performance measurement. At the scales we evaluate, performance varies greatly across runs. 
 
-> The weakness of accuracy based evaluation at this scale (and up a few OOMs further actually !!!) is made obvious by results on Fineweb-Edu and RefinedWeb (Li et al., 2024).
+> The weakness of accuracy based evaluation at this scale (and up a few OOMs further actually !!!) is made obvious by results on Fineweb-Edu (Penedo et al., 2024) and RefinedWeb (Li et al., 2024).
 > * @411M, 1x Chinchilla - Fineweb +2.9%
 > * @1.4B, 1x Chinchilla - Fineweb -0.9%
 > * @1.4B, 5x Chinchilla - Fineweb +2.4%
@@ -389,6 +387,7 @@ I want to say a quick thank you to Vincent Wilmet and Rohan Ahluwalia for feedba
 
 [24] Shubham Toshniwal, Wei Du, Ivan Moshkov, Branislav Kisacanin, Alexan Ayrapetyan, Igor Gitman. OpenMathInstruct-2: Accelerating AI for Math with Massive Open-Source Instruction Data. arXiv preprint arXiv:2410.01560 (2024).
 
+[25] Guilherme Penedo, Hynek Kydlíček, Loubna Ben Allal, Anton Lozhkov, Margaret Mitchell, Colin Raffel, Leandro von Werra, Thomas Wolf. The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale. arXiv preprint arXiv:2406.17557 (2024).
 
 ## Appendix
 
