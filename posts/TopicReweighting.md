@@ -109,7 +109,7 @@ Armed with an understanding of how to optimally update group weights at a given 
 >   3. $\text{logit}^{(t+1)}_j \leftarrow \text{logit}^{(t)}_j + \eta\, f(\bar{I}_j)$ (see Eq. (7))
 >   4. return $\text{logits}^{(t+1)}$
 
-To ensure a smooth optimization landscape, we employ standard clipping and rescaling with $f$, which we define as:
+To ensure a smooth optimization landscape, we employ standard clipping, centering and rescaling with $f$, which we define as:
 
 $$f(\bar I_j) = \mathrm{clip}\!\left(\frac{\bar I_j - \mu}{\sigma},\, \text{max}_{\text{step}}\right) \tag{7}$$
 
