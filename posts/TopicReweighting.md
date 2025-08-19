@@ -131,7 +131,7 @@ We experiment using the training hyperparameters from Datacomp for Language Mode
 
 > DCLM-Baseline is already one of the most heavily curated open datasets. It outperforms Fineweb-Edu with 50% fewer tokens and C4 with 80% fewer tokens.
 
-We embed each document, truncated to 1024 tokens, using Qwen3-Embedding-0.6B [11] and use faiss k-means to cluster the documents in $10,000$ clusters, following precedent set by SemDeDup [12]. We choose OpenHermes2.5 [13] as our target set and truncate each example 2048 tokens, the size of our context window. During training, we employ a 2-way jittered shuffle to ensure maximal cluster balance throughout training + optimal spacing between repeated examples. Details are in the appendix. At each iteration we train a 411m parameter model for the chinchila optimal number of tokens, but exit early from the run after 80% of tokens have been seen.
+We embed each document, truncated to 1024 tokens, using Qwen3-Embedding-0.6B [11] and use faiss k-means to cluster the documents in $10,000$ clusters, following precedent set by SemDeDup [12]. We choose OpenHermes2.5 [13] as our target set and truncate each example 2048 tokens, the size of our context window. During training, we employ a 2-way jittered shuffle to ensure maximal cluster balance + optimal spacing between repeated examples. Details are in the appendix. At each iteration we train a 411m parameter model for the chinchila optimal number of tokens, but exit early from the run after 80% of tokens have been seen.
 
 > [9] determines a checkpoint late in training, but before the learning rate has fully decayed, is optimal for *meta-smoothness* - a critical condition for meta-optimization.
 
