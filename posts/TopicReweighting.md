@@ -142,7 +142,21 @@ To improve efficiency, only a small subset of examples is used to effectively ap
 
 ## Quantitative Results
 
+<img src="../media/l2l/downstream.png" alt="Figure 2: TerRIFIC Downstream" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
+
+<p style="text-align:center"><em>Figure 2: Performance of 1.4B models on DCLM-CORE-CLEAN. This chart is evidence of the strenght of our starting corpus DCLM-Baseline, which TerRIFIC further improves upon.</em></p>
+
 We evaluate performance using perplexity on Paloma (Magnusson et al., 2023), WikiText (Merity et al., 2016), OpenThoughts-114k (Guha et al., 2025), CodeAlpaca-20k (Chaudhary, 2023), OpenMathInstruct 2 (Toshniwal et al., 2024) and a held-out shard of the DCLM-Baseline corpus (Li et al., 2024).
+
+We also evaluate the models on 18 out of 22 tasks in DCLM-CORE, which we call DCLM-CORE-CLEAN. We choose to exclude AGI_EVAL_LSAT_AR, Commonsense_QA, BoolQ, and BB-CS-Algorithms due to the results being incoherent across scales. Frequently, the 411M models outperform the 1.4B models on these tasks. Results on these evals are reported in the appendix.
+
+> The weakness of evaluation on the full DCLM-CORE at this scale (and up a few OOMs further actually !!!) is made obvious by results on Fineweb-Edu (Penedo et al., 2024) and RefinedWeb (Li et al., 2024).
+> * @411M, 1x Chinchilla - Fineweb +2.9%
+> * @1.4B, 1x Chinchilla - Fineweb -0.9%
+> * @1.4B, 5x Chinchilla - Fineweb +2.4%
+> * @7B, 1x Chinchilla - Fineweb -1.1%
+>
+> ... not ideal
 
 <table style="border-collapse:collapse; width:100%">
   <thead>
@@ -172,16 +186,16 @@ We evaluate performance using perplexity on Paloma (Magnusson et al., 2023), Wik
 
 As show in Figure 1 and Table 1, TerRIFIC is able to iteratively refine thousands of cluster weights resulting in significant downstream improvements. Due to the high concentration of math and code data in OpenHermes 2.5, the optimization process most drastically improves performance on OpenMathInstruct 2, OpenThoughts-114k, and CodeAlpaca-20k. It also boosts general language modeling abilities as exhibited by the improvement on Paloma and lack of change on held out DCLM-Baseline, with only small regression in recall (WikiText).
 
-It is also worth acknowledging that only 2 meta-iterations were required to learn data weights that exhibited non-trivial performance improvements. A grid search over 10,000 cluster weights would have taken many orders of magnitude more compute to yield performance gains.
+It is also worth acknowledging that only 2 meta-iterations were required to learn data weights that exhibited non-trivial performance improvements. A grid search over 10,000 cluster weights would have taken many orders of magnitude more compute to discover a solution.
 
 ### Scaling Up
 
-<img src="../media/l2l/overlay_411m_left_14b_right_download.png" alt="Figure 2: Comparing performance at scale" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
-<p style="text-align:center"><em>Figure 2: Cluster weights transfer seamlessly to runs requiring >11x FLOPs. Performance comparisons are w.r.t DCLM-Baseline.</em></p>
+<img src="../media/l2l/overlay_411m_left_14b_right_download.png" alt="Figure 3: Comparing performance at scale" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
+<p style="text-align:center"><em>Figure 3: Cluster weights transfer seamlessly to runs requiring >11x FLOPs. Performance comparisons are w.r.t DCLM-Baseline.</em></p>
 
 In order for our method to be viable, it must translate to larger scale results with minimal regression. In order to verify this, we reintroduced the 25B tokens that were held out from the cluster weight learning process. We trained 1.4B-parameter language models for 28B tokens, a ~14.5x FLOP increase over models used to learn data weights and ~11.6x FLOP increase over our fully trained 411M model.
 
-Results in Figure 2 show nearly all performance improvements transfer. In fact, general language modeling and recall marginally improve, coding is unchanged and only minor regressions are seen on math and reasoning. Due to compute constraints, larger runs were not possible, but the near absence of degredation leads to confidence that performance will continue to transfer.
+Results in Figure 3 show nearly all performance improvements transfer. In fact, general language modeling and recall marginally improve, coding is unchanged and only minor regressions are seen on math and reasoning. Due to compute constraints, larger runs were not possible, but the near absence of degredation leads to confidence that performance will continue to transfer.
 
 ### Downstream Accuracy
 
@@ -225,19 +239,9 @@ Results in Figure 2 show nearly all performance improvements transfer. In fact, 
 
 <p style="text-align:center"><em>Table 2: Downstream performance (centered accuracy) on DCLM-CORE-CLEAN. Best results are underlined.</em></p>
 
-We also evaluate the models on 18 out of 22 tasks in DCLM-CORE, which we call DCLM-CORE-CLEAN. We choose to exclude AGI_EVAL_LSAT_AR, Commonsense_QA, BoolQ, and BB-CS-Algorithms due to the results being incoherent across scales. Frequently, the 411M models outperform the 1.4B models.
+As shown in Table 2, our method frequently outperforms DCLM-Baseline, both on individual evals and in aggregate. The most significant gains can be found on symbolic problem solving evals which is expected due to the composition of OpenHermes 2.5. 
 
-As shown in Table 2, our method frequently outperforms the baseline mix, both on individual evals and in aggregate. The most significant gains can be found on symbolic problem solving evals which is expected due to the composition of OpenHermes 2.5. 
-
-We use these downstream evaluations, largely, as a secondary performance measurement. At the scales we evaluate, performance varies greatly across runs. 
-
-> The weakness of accuracy based evaluation at this scale (and up a few OOMs further actually !!!) is made obvious by results on Fineweb-Edu (Penedo et al., 2024) and RefinedWeb (Li et al., 2024).
-> * @411M, 1x Chinchilla - Fineweb +2.9%
-> * @1.4B, 1x Chinchilla - Fineweb -0.9%
-> * @1.4B, 5x Chinchilla - Fineweb +2.4%
-> * @7B, 1x Chinchilla - Fineweb -1.1%
->
-> ... not ideal
+We also report, in Figure 2, performance compared to other baselines: C4 (Raffel et al., 2019), RefinedWeb (Penedo et al., 2023), and FineWeb‑Edu (Penedo et al., 2024). These results exemplify the strength of our starting corpus, making the improvements found by TerRIFIC even more exciting.
 
 <table style="border-collapse:collapse; width:100%">
   <thead>
@@ -278,7 +282,7 @@ We use these downstream evaluations, largely, as a secondary performance measure
 
 <p style="text-align:center"><em>Table 3: Correct answer NLL on DCLM-CORE-CLEAN. Best results are underlined.</em></p>
 
-In an attempt to further mitigate these issues, we report downstream correct answer NLL in Table 3. While also an imperfect metric, the trend holds: TerRIFIC finds sizable performance improvements at both scales.
+We also report correct answer NLL on DCLM-CORE-CLEAN in Table 3. The trend holds: TerRIFIC finds sizable performance improvements at both scales.
 
 ## Qualitative Results
 
@@ -390,6 +394,10 @@ I want to say a quick thank you to Vincent Wilmet and Rohan Ahluwalia for feedba
 [24] Shubham Toshniwal, Wei Du, Ivan Moshkov, Branislav Kisacanin, Alexan Ayrapetyan, Igor Gitman. OpenMathInstruct-2: Accelerating AI for Math with Massive Open-Source Instruction Data. arXiv preprint arXiv:2410.01560 (2024).
 
 [25] Guilherme Penedo, Hynek Kydlíček, Loubna Ben Allal, Anton Lozhkov, Margaret Mitchell, Colin Raffel, Leandro von Werra, Thomas Wolf. The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale. arXiv preprint arXiv:2406.17557 (2024).
+
+[26] Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, Peter J. Liu. Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer. arXiv preprint arXiv:1910.10683 (2019).
+
+[27] Guilherme Penedo, Quentin Malartic, Daniel Hesslow, Ruxandra Cojocaru, Alessandro Cappelli, Hamza Alobeidli, Baptiste Pannier, Ebtesam Almazrouei, Julien Launay. The RefinedWeb Dataset for Falcon LLM: Outperforming Curated Corpora with Web Data, and Web Data Only. arXiv preprint arXiv:2306.01116 (2023).
 
 ## Appendix
 
