@@ -42,8 +42,8 @@ instead as computing $\theta_S^*$ is prohibitively expensive.
 
 Practically speaking, a useful method should accomplish the following three things:
 
-1. Develop more accurate ways to estimate the per-example utility $U(x)$ appearing in Eq. (1)
-2. Bridge the gap between Eq. 1 and Eq. 2
+1. Develop more accurate ways to estimate the per-example utility $U(x)$
+2. Bridge the gap between example utility and subset utility
 3. Efficiently scale from small to large models + datasets
 
 ## Measuring Data Influence 
