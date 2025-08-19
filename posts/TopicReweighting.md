@@ -123,9 +123,9 @@ When applied iteratively, via Algorithm 2, our optimizer refines the cluster log
 
 ## Experimental Setup
 
-We experiment using the training hyperparameters from Datacomp for Language Models (DCLM) [10]. We select a ~37B token subset of DCLM-baseline, one of the most heavily curated open datasets, as our starting corpus. From this, we randomly select ~12B tokens to learn cluster weights.
+We experiment using the training hyperparameters from Datacomp for Language Models (DCLM) [10]. We select a ~37B token subset of DCLM-Baseline as our starting corpus. From this, we randomly select ~12B tokens to learn cluster weights.
 
-> 
+> DCLM-Baseline is already one of the most heavily curated open datasets. It out performs Fineweb-Edu with 50% of the tokens and C4 with 20% of the tokens.
 
 We embed each document, truncated to 1024 tokens, using Qwen3-Embedding-0.6B [11] and use faiss k-means to cluster the documents in $10,000$ clusters, following precedent set by SemDeDup [12]. We choose OpenHermes2.5 [13] as our target set and truncate each example 2048 tokens, the size of our context window. At each iteration we train a 411m parameter model for the chinchila optimal number of tokens, but exit early from the run after 80% of tokens have been seen.
 
