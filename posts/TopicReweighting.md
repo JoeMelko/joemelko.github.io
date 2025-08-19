@@ -22,7 +22,7 @@ Our contributions are:
 1. A minimal, necessary modification to efficient influence approximation, which we call $m‑TrackStar$.
 2. A robust, scalable meta‑optimizer that learns per‑cluster sampling weights directly from influence‑on‑target signals (TerRIFIC).
 
-Our results demonstrate meta‑learning can discover significant performance improvements over an already strong baseline.
+Our results demonstrate meta‑learning can discover significant performance improvements even when applied to a heavily curated corpus.
 
 ## The Goal
 
