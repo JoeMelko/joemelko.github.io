@@ -104,6 +104,14 @@ mjx-container > .MJX-TEX {
     text-align: left;
 }
 
+/* Ensure MathJax equation tags (numbers) are visible and positioned */
+mjx-container[jax="CHTML"][display="true"] { position: relative; }
+mjx-container[jax="CHTML"][display="true"] .mjx-tag {
+    display: inline-block;
+    margin-left: 0.8em;
+    color: inherit;
+}
+
 .markdown-body p {
     text-align: justify;
 }
@@ -118,11 +126,13 @@ window.MathJax = {
         displayMath: [['$$', '$$']],
         processEscapes: true,
         tags: 'all',
+        tagSide: 'right',
+        tagIndent: '0.8em',
         packages: {'[+]': ['ams']}
     }
 };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
 <script>
 // Configure marked
 marked.use({
@@ -150,10 +160,9 @@ function processMarkdown(text) {
     // Replace display math
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, function(match, math) {
         const placeholder = `MATHBLOCK${counter}`;
-        // Wrap display math in a centered div
         mathExpressions.push({
             placeholder,
-            math: `<div style="display:flex;justify-content:center;width:100%">${match}</div>`
+            math: `${match}`
         });
         counter++;
         return placeholder;
