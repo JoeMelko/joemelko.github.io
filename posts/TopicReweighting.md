@@ -1,7 +1,8 @@
 <style>
 body { background-color: #121212; color: #e6e6e6; }
-blockquote { background-color: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 0.75em 1em; }
+blockquote { background-color: #1f1f1f; border: 1px solid #303030; border-radius: 6px; padding: 0.75em 1em; }
 /* Add lines under model-size/tokens header row and under iteration-number header row */
+table { border-top: 3px solid #ffffff; border-bottom: 3px solid #ffffff; }
 table thead tr:first-child th { border-bottom: 2px solid #cfcfcf; }
 table thead tr:nth-child(2) th { border-bottom: 1px solid #e5e5e5; }
 table th, table td { text-align: center !important; }
@@ -217,7 +218,7 @@ Results in Figure 2 show nearly all performance improvements transfer. In fact, 
     <tr><td>BB-Repeat-Copy-Logic</td><td style="text-align:right">0.000</td><td style="text-align:right">0.000</td><td style="text-align:right"><strong>0.031</strong></td><td style="text-align:right; border-left:2px solid #ccc">0.031</td><td style="text-align:right"><strong>0.063</strong></td></tr>
     <tr><td>SQuAD</td><td style="text-align:right">0.126</td><td style="text-align:right">0.121</td><td style="text-align:right"><strong>0.142</strong></td><td style="text-align:right; border-left:2px solid #ccc"><strong>0.380</strong></td><td style="text-align:right"><strong>0.380</strong></td></tr>
     <tr><td>CoQA</td><td style="text-align:right">0.150</td><td style="text-align:right">0.156</td><td style="text-align:right"><strong>0.163</strong></td><td style="text-align:right; border-left:2px solid #ccc"><strong>0.301</strong></td><td style="text-align:right"><strong>0.301</strong></td></tr>
-    <tr style="background-color:#d6ecff;"><td><strong>Mean</strong></td><td style="text-align:right">0.185</td><td style="text-align:right"><strong>0.192</strong></td><td style="text-align:right">0.190</td><td style="text-align:right; border-left:2px solid #ccc">0.338</td><td style="text-align:right"><strong>0.343</strong></td></tr>
+    <tr style="border-top: 3px solid currentColor;"><td><strong>Mean</strong></td><td style="text-align:right">0.185</td><td style="text-align:right"><strong>0.192</strong></td><td style="text-align:right">0.190</td><td style="text-align:right; border-left:2px solid #ccc">0.338</td><td style="text-align:right"><strong>0.343</strong></td></tr>
   </tbody>
 </table>
 
@@ -270,7 +271,7 @@ We use these downstream evaluations, largely, as a secondary performance measure
     <tr><td>BB-Repeat-Copy-Logic</td><td style="text-align:right">1.870</td><td style="text-align:right"><strong>1.797</strong></td><td style="text-align:right">1.819</td><td style="text-align:right; border-left:2px solid #ccc">1.362</td><td style="text-align:right"><strong>1.194</strong></td></tr>
     <tr><td>SQuAD</td><td style="text-align:right">4.047</td><td style="text-align:right">3.738</td><td style="text-align:right"><strong>3.597</strong></td><td style="text-align:right; border-left:2px solid #ccc">3.277</td><td style="text-align:right"><strong>3.249</strong></td></tr>
     <tr><td>CoQA</td><td style="text-align:right">4.634</td><td style="text-align:right">4.452</td><td style="text-align:right"><strong>4.242</strong></td><td style="text-align:right; border-left:2px solid #ccc">3.791</td><td style="text-align:right"><strong>3.628</strong></td></tr>
-    <tr style="background-color:#d6ecff;"><td><strong>Mean</strong></td><td style="text-align:right">3.893</td><td style="text-align:right"><strong>3.770</strong></td><td style="text-align:right">3.825</td><td style="text-align:right; border-left:2px solid #ccc">3.251</td><td style="text-align:right"><strong>3.131</strong></td></tr>
+    <tr style="border-top: 3px solid currentColor;"><td><strong>Mean</strong></td><td style="text-align:right">3.893</td><td style="text-align:right"><strong>3.770</strong></td><td style="text-align:right">3.825</td><td style="text-align:right; border-left:2px solid #ccc">3.251</td><td style="text-align:right"><strong>3.131</strong></td></tr>
   </tbody>
 </table>
 
