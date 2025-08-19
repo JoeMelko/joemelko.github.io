@@ -2,7 +2,7 @@
 
 > TL;DR: We learn sampling weights over arbitrary data clusters using efficient influence approximations. Starting from TrackStar, we introduce m‑TrackStar to stably approximate influence and align training data with a target set. Our meta‑optimizer (TerRIFIC) updates cluster logits via a scaled, clipped function of cluster–target alignment, improving performance over an already strong baseline. The method is simple, scalable, and agnostic to how clusters are defined.
 
-![Figure 1: TerRIFIC Overview](../media/l2l/results1.png)
+<img src="../media/l2l/results1.png" alt="Figure 1: TerRIFIC Overview" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 
 <p style="text-align:center"><em>Figure 1: TerRIFIC iteratively improves data weights resulting in drastically lower perplexity across various held out datasets (lower is better)</em></p>
 
@@ -169,7 +169,7 @@ It is also worth acknowledging that only 2 meta-iterations were required to lear
 
 ### Scaling Up
 
-![Figure 2: Comparing performance at scale](../media/l2l/overlay_411m_left_14b_right_download.png)
+<img src="../media/l2l/overlay_411m_left_14b_right_download.png" alt="Figure 2: Comparing performance at scale" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 <p style="text-align:center"><em>Figure 2: Cluster weights transfer seamlessly to runs requireing >11x FLOPs. Performance comparisons are w.r.t DCLM-Baseline.</em></p>
 
 In order for our method to be viable, it must translate to larger scale results with minimal regression. In order to verify this, we reintroduced the 25B tokens that were held out from the cluster weight learning process. We trained 1.4B parameter language models for 28B tokens, a ~14.5x FLOP increase over models used to learn data weights and ~11.6x FLOP increase over our 411m model fully trained.
