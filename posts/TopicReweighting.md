@@ -1,6 +1,6 @@
 <style>
 body { background-color: #121212; color: #e6e6e6; }
-blockquote { background-color: #1f1f1f; border: 1px solid #303030; border-radius: 6px; padding: 0.75em 1em; }
+blockquote { background-color: #1f1f1f; border: 1px solid currentColor; border-radius: 6px; padding: 0.75em 1em; }
 /* Add lines under model-size/tokens header row and under iteration-number header row */
 table { border-top: 3px solid #ffffff; border-bottom: 3px solid #ffffff; }
 table thead tr:first-child th { border-bottom: 2px solid #cfcfcf; }
