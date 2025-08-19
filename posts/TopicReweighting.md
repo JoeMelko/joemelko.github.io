@@ -6,7 +6,7 @@ table thead tr:nth-child(2) th { border-bottom: 1px solid #e5e5e5; }
 table th, table td { text-align: center !important; }
 </style>
 
-> TL;DR: We learn sampling weights over arbitrary data clusters using efficient influence approximations. We introduce m‑TrackStar to stably approximate influence and a meta‑optimizer (TerRIFIC) to iteratively update cluster weights based on cluster–target influence approxiations. Utilizing data weights learned with TerRIFIC results in significant performance improvements over a (very) strong baseline. Our method is simple, scalable, and agnostic to how clusters are defined.
+> TL;DR: We learn sampling weights over arbitrary data clusters using efficient influence approximations. We introduce m‑TrackStar to stably approximate influence and a meta‑optimizer (TerRIFIC) to iteratively update cluster weights based on cluster–target influence approximations. Utilizing data weights learned with TerRIFIC results in significant performance improvements over a (very) strong baseline. Our method is simple, scalable, and agnostic to how clusters are defined.
 
 <img src="../media/l2l/results1.png" alt="Figure 1: TerRIFIC Overview" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 
@@ -43,9 +43,9 @@ Practically speaking, a useful method should accomplish the following three thin
 2. Bridge the gap between Eq. 1 and Eq. 2
 3. Efficiently scale from small to large models + datasets
 
-## Measuring Data Influnce 
+## Measuring Data Influence 
 
-Before we can work on groups of examples, we must first determine how to measure if a sample helps(harms) learning for the capability(ies) we are interested in. We will do this using influence functions (Koh et al., 2017), which are defined in the following way:
+Before we can work on groups of examples, we must first determine how to measure if a sample helps (harms) learning for the capability(ies) we are interested in. We will do this using influence functions (Koh et al., 2017), which are defined in the following way:
 
 $$I(z, z_{test}) = -\nabla_{\theta} L(z_{test}, \theta^*)^T H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*) \tag{3}$$
 
@@ -53,9 +53,9 @@ where $\theta^*$ represents the optimal model parameters, $H_{\theta^*}$ is the 
 
 ### Addressing Inefficiencies
 
-Due to astronomical storage and compute costs (particularly w.r.t Hessians), explicit influence function computations are inefficient and impractical. Instead there are various methods that aim to approximate influence using block diagonal approxmiations of the hessian (Martens et al., 2015; George et al., 2018), random projections (Park et al., 2023), and combinations of the two (Choe et al., 2024; Gupta et al., 2024). 
+Due to astronomical storage and compute costs, explicit influence function computations are inefficient and impractical. Instead there are various methods that aim to approximate influence using block diagonal approximations of the Hessian (Martens et al., 2015; George et al., 2018), random projections (Park et al., 2023), and combinations of the two (Choe et al., 2024; Gupta et al., 2024). 
 
-Due to it's demonstrated utility on multi-billion parameter scale transformers, we use TrackStar as our starting point (Gupta et al., 2024), which the authors define as:
+Due to its demonstrated utility on multi-billion parameter scale transformers, we use TrackStar as our starting point (Gupta et al., 2024), which the authors define as:
 
 $$
 G_{\theta}(z)=R^{-1/2}\,P_{d}\,\nabla_{\theta} L(z,\theta)\,V^{-1/2} \tag{4}
@@ -67,13 +67,13 @@ $$
 P_{d_0}\, W\, P_{d_1}^{\top} \;\in\; \mathbb{R}^{\sqrt{d} \times \sqrt{d}} \tag{5}
 $$
 
-where $W\!\in\!\mathbb{R}^{n\times m}$ is a gradient matrix, and we define $P_{d_0},P_{d_1}\!\sim\!\mathcal N(0,1/\sqrt d)$ with $P_{d_0}\!\in\!\mathbb{R}^{\sqrt d \times m}$, $P_{d_1}\!\in\!\mathbb{R}^{n \times \sqrt d}$. Also, to further decrease the representation size, layers are concatenated into in B blocks. Also, to accomodate the differences in attention and MLP, these are concatenated separately.
+where $W\!\in\!\mathbb{R}^{n\times m}$ is a gradient matrix, and we define $P_{d_0},P_{d_1}\!\sim\!\mathcal N(0,1/\sqrt d)$ with $P_{d_0}\!\in\!\mathbb{R}^{\sqrt d \times m}$, $P_{d_1}\!\in\!\mathbb{R}^{n \times \sqrt d}$. To further decrease the representation size, layers are concatenated into B blocks. To accommodate characteristic differences between attention and MLP layers, these are concatenated separately.
 
 Under a local quadratic approximation and with $R$ estimating the projected Fisher, the alignment $\langle G_{\theta}(z),\, G_{\theta}(z_{test}) \rangle$ is a stable approximation for $\nabla_{\theta} L(z_{test}, \theta^*)^{\top} H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*)$, enabling Eq. (3)-style influence ranking without materializing $H_{\theta^*}^{-1}$.
 
 ### $m-TrackStar$
 
-We propose 2 changes to their method. First, we remove the second moment estimate, $V$, for simplicity, as empirical results have shown that it is not critical for efficacy [6]. Second, we replace L2-Normalization with gradient clipping. This allows us to mitigate the effect of erroneous data that produce large gradient norms, while not inflating the measured utility of low gradient norm examples. It is also more principled; influence functions are local approximations which lose accuracy when step sizes are too large, not too small. We implement this prior to computing $R$ so the approximate curvature of the loss landscape is computed w.r.t. "reasonable" data, not erroneous examples which can heavily skew the covariance matrix. We call the new primitive modified-TrackStar, or $m-TrackStar$, and define it below:
+We propose 2 changes to their method. First, we remove the second moment estimate, $V$, for simplicity, as empirical results have shown that it is not critical for efficacy (Gupta et al., 2024). Second, we replace L2 normalization with gradient clipping. This allows us to mitigate the effect of erroneous data, while not inflating the measured utility of low gradient norm examples. It is also more principled; influence functions are local approximations which lose accuracy when step sizes are too large, not too small. We implement this prior to computing $R$ so the approximate curvature of the loss landscape is computed w.r.t. "reasonable" data, not erroneous examples which can heavily skew the covariance matrix. We call the new primitive modified-TrackStar, or $m-TrackStar$, and define it below:
 
 $$
 mG_{\theta}(z)=R^{-1/2}\,P_{d}\,\mathrm{clip}_{t}\!\bigl(\nabla_{\theta} L(z,\theta)\bigr) \tag{6}
@@ -83,7 +83,7 @@ where $\operatorname{clip}_{t}(g)$ is standard L2-norm gradient clipping that re
 
 ## Moving Beyond Individual Examples
 
-With our choice efficent method for approximating influence, we need to consider the dataset as a whole, not just individual examples. One approach attempted to address the sub-goal two by learning a relationship weight used to down-weight similar examples during selection [8]. Later work has tried to address sub-goal three by computing the influence of a subset of examples and then training a classifier to predict the rest [7].
+With our choice efficent method for approximating influence, we need to consider the dataset as a whole, not just individual examples. One approach attempted to address the sub-goal two by learning a relationship weight used to down-weight similar examples during selection (Yu et al., 2025). Later work has tried to address sub-goal three by computing the influence of a subset of examples and then training a classifier to predict the rest (Yu et al., 2024).
 
 We will attempt to address each differently.
 
@@ -93,13 +93,13 @@ To ensure our method is scalable, instead of considering individual examples, we
 
 *Can we learn how to sample from $C$ clusters s.t. we can optimally learn to perform some downstream task?*
 
-The result is a meta-optimization problem [9] over $C$ probabilities. We can trivially extend our primitive from examples to groups of examples by averaging the influence computed by $m-TrackStar$ across members of a group. We can then use the relative utility of each group is used adjust the sampling probabilities.
+The result is a meta-optimization problem (Engstrom et al., 2025) over $C$ probabilities. We can trivially extend our primitive from examples to groups of examples by averaging the influence computed by $m-TrackStar$ across members of a group. We then use the relative utility of each group to adjust the sampling probabilities.
 
 >It is worth noting that this framing is a superset of the optimization problem over individual examples. When all cluster sizes are one, we collapse to the previous definition.
 
 ### Gradient Descent On Group Weights
 
-Armed with an understanding of how to optimally update group weights at a given parameterization, we can perform metagradient-descent (Engstrom et al., 2025) to learn an optimal solution. Given some arbitrary grouping of candidate data, we now introduce our meta-optimizer, which we call Topic Reweighting with Influence Functions In Clusters (TerRIFIC):
+Armed with an understanding of how to optimally update group weights at a given parameterization, we can perform metagradient descent (Engstrom et al., 2025) to learn an optimal solution. Given some arbitrary grouping of candidate data, we now introduce our meta-optimizer, which we call Topic Reweighting with Influence Functions In Clusters (TerRIFIC):
 
 > Algorithm 1: TerRIFIC Meta-Optimizer
 > - Inputs: model state $\theta^{(t)}$, target set $\mathcal{V}$, clusters $C=\{c_1,\dots,c_{|C|}\}$, logits $\text{logit}^{(t)}$, learning rate $\eta$, $\text{max}_{\text{step}}$.
@@ -131,15 +131,15 @@ We experiment using the training hyperparameters from Datacomp for Language Mode
 
 > DCLM-Baseline is already one of the most heavily curated open datasets. It outperforms Fineweb-Edu with 50% fewer tokens and C4 with 80% fewer tokens.
 
-We embed each document, truncated to 1024 tokens, using Qwen3-Embedding-0.6B (Zhang et al., 2025) and use faiss k-means to cluster the documents in $10,000$ clusters, following precedent set by SemDeDup (Abbas et al., 2023). We choose OpenHermes2.5 (Teknium, 2024) as our target set and truncate each example 2048 tokens, the size of our context window. During training, we employ a 2-way jittered shuffle to ensure maximal cluster balance + optimal spacing between repeated examples. Details are in the appendix. At each iteration we train a 411m parameter model for the chinchila optimal number of tokens, but exit early from the run after 80% of tokens have been seen.
+We embed each document, truncated to 1024 tokens, using Qwen3-Embedding-0.6B (Zhang et al., 2025) and use FAISS k-means to cluster the documents in $10,000$ clusters, following precedent set by SemDeDup (Abbas et al., 2023). We choose OpenHermes 2.5 (Teknium, 2024) as our target set and truncate each example to 2048 tokens, the size of our context window. During training, we employ a 2-way jittered shuffle to ensure maximal cluster balance + optimal spacing between repeated examples; details are in the appendix. At each iteration we train a 411M-parameter model for the Chinchilla-optimal number of tokens, but exit early from the run after 80% of tokens have been seen.
 
-> (Engstrom et al., 2025) determines a checkpoint late in training, but before the learning rate has fully decayed, is optimal for *meta-smoothness* - a critical condition for meta-optimization.
+> (Engstrom et al., 2025) determine that a checkpoint late in training, but before the learning rate has fully decayed, is optimal for *meta-smoothness* - a critical condition for meta-optimization.
 
-To improve efficiency, only a small subset of examples are used to effectively approximate the mean influence of each cluster. Additionally, we transfer learned cluster weights to larger datasets and models.
+To improve efficiency, only a small subset of examples is used to effectively approximate the mean influence of each cluster. Additionally, we transfer learned cluster weights to larger datasets and models.
 
 ## Quantitative Results
 
-We evaluate performance using perplexity on Paloma (Magnusson et al., 2023), wikitext (Merity et al., 2016), OpenThoughts-114k (Guha et al., 2025), CodeAlpaca-20k (Chaudhary, 2023), OpenMathInstruct 2 (Toshniwal et al., 2024) and a held out shard of the DCLM-Basline corpus (Li et al., 2024).
+We evaluate performance using perplexity on Paloma (Magnusson et al., 2023), WikiText (Merity et al., 2016), OpenThoughts-114k (Guha et al., 2025), CodeAlpaca-20k (Chaudhary, 2023), OpenMathInstruct 2 (Toshniwal et al., 2024) and a held-out shard of the DCLM-Baseline corpus (Li et al., 2024).
 
 <table style="border-collapse:collapse; width:100%">
   <thead>
@@ -167,16 +167,16 @@ We evaluate performance using perplexity on Paloma (Magnusson et al., 2023), wik
 </table>
 <p style="text-align:center"><em>Table 1: NLL across meta‑iterations on our target tasks. Best results are in <strong>bold</strong>.</em></p>
 
-As show in Figure 1 and Table 1, TerRIFIC is able to iteratively refine thousands of cluster weights resulting in significant downstream improvements. Due to the high concentration of math and code data in OpenHermes 2.5, the optimization process most drastically improves performance on OpenMathInstruct 2, OpenThoughts-114k, and CodaAlpaca-20. It also boosts general language modeling abilities as exhibited by the improvement on Paloma and lack of change on held out DCLM-Baseline, with only small regression in recall (Wikitext).
+As show in Figure 1 and Table 1, TerRIFIC is able to iteratively refine thousands of cluster weights resulting in significant downstream improvements. Due to the high concentration of math and code data in OpenHermes 2.5, the optimization process most drastically improves performance on OpenMathInstruct 2, OpenThoughts-114k, and CodeAlpaca-20k. It also boosts general language modeling abilities as exhibited by the improvement on Paloma and lack of change on held out DCLM-Baseline, with only small regression in recall (WikiText).
 
-It is also worth acknowledging that only 2 meta-iterations were required to learn data weights that exhibited non-trival performance improvements. A grid search over 10_000 cluster weights would have taken many orders of magnitude more compute to yield performance gains.
+It is also worth acknowledging that only 2 meta-iterations were required to learn data weights that exhibited non-trivial performance improvements. A grid search over 10,000 cluster weights would have taken many orders of magnitude more compute to yield performance gains.
 
 ### Scaling Up
 
 <img src="../media/l2l/overlay_411m_left_14b_right_download.png" alt="Figure 2: Comparing performance at scale" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
-<p style="text-align:center"><em>Figure 2: Cluster weights transfer seamlessly to runs requireing >11x FLOPs. Performance comparisons are w.r.t DCLM-Baseline.</em></p>
+<p style="text-align:center"><em>Figure 2: Cluster weights transfer seamlessly to runs requiring >11x FLOPs. Performance comparisons are w.r.t DCLM-Baseline.</em></p>
 
-In order for our method to be viable, it must translate to larger scale results with minimal regression. In order to verify this, we reintroduced the 25B tokens that were held out from the cluster weight learning process. We trained 1.4B parameter language models for 28B tokens, a ~14.5x FLOP increase over models used to learn data weights and ~11.6x FLOP increase over our 411m model fully trained.
+In order for our method to be viable, it must translate to larger scale results with minimal regression. In order to verify this, we reintroduced the 25B tokens that were held out from the cluster weight learning process. We trained 1.4B-parameter language models for 28B tokens, a ~14.5x FLOP increase over models used to learn data weights and ~11.6x FLOP increase over our fully trained 411M model.
 
 Results in Figure 2 show nearly all performance improvements transfer. In fact, general language modeling and recall marginally improve, coding is unchanged and only minor regressions are seen on math and reasoning. Due to compute constraints, larger runs were not possible, but the near absence of degredation leads to confidence that performance will continue to transfer.
 
@@ -222,7 +222,7 @@ Results in Figure 2 show nearly all performance improvements transfer. In fact, 
 
 <p style="text-align:center"><em>Table 2: Downstream performance (centered accuracy) on DCLM-CORE-CLEAN. Best results in <strong>bold</strong>.</em></p>
 
-We also evaluate the models on 18 out of 22 tasks in DCLM-CORE, which we call DCLM-CORE-CLEAN. We choose to exclude AGI_EVAL_LSAT_AR, COMMONSENSE_QA, BoolQ, and BB-CS-Algorithms due to the results being incoherent across scales. Frequently, the 411M models outperform the 1.4B models.
+We also evaluate the models on 18 out of 22 tasks in DCLM-CORE, which we call DCLM-CORE-CLEAN. We choose to exclude AGI_EVAL_LSAT_AR, Commonsense_QA, BoolQ, and BB-CS-Algorithms due to the results being incoherent across scales. Frequently, the 411M models outperform the 1.4B models.
 
 As shown in Table 2, our method frequently outperforms the baseline mix, both on individual evals and in aggregate. The most significant gains can be found on symbolic problem solving evals which is expected due to the composition of OpenHermes 2.5. 
 
@@ -253,20 +253,20 @@ We use these downstream evaluations, largely, as a secondary performance measure
   </thead>
   <tbody>
     <tr><td>Jeopardy</td><td style="text-align:right"><strong>2.747</strong></td><td style="text-align:right">2.767</td><td style="text-align:right">2.762</td><td style="text-align:right; border-left:2px solid #ccc"><strong>1.574</strong></td><td style="text-align:right">1.592</td></tr>
-    <tr><td>BB QA Wikidata</td><td style="text-align:right"><strong>4.930</strong></td><td style="text-align:right">5.118</td><td style="text-align:right">5.239</td><td style="text-align:right; border-left:2px solid #ccc">3.821</td><td style="text-align:right"><strong>3.665</strong></td></tr>
-    <tr><td>ARC Easy</td><td style="text-align:right">2.813</td><td style="text-align:right"><strong>2.804</strong></td><td style="text-align:right">2.811</td><td style="text-align:right; border-left:2px solid #ccc">2.160</td><td style="text-align:right"><strong>2.142</strong></td></tr>
-    <tr><td>ARC Challenge</td><td style="text-align:right">2.937</td><td style="text-align:right"><strong>2.898</strong></td><td style="text-align:right">2.916</td><td style="text-align:right; border-left:2px solid #ccc">2.379</td><td style="text-align:right"><strong>2.361</strong></td></tr>
+    <tr><td>BB-QA-Wikidata</td><td style="text-align:right"><strong>4.930</strong></td><td style="text-align:right">5.118</td><td style="text-align:right">5.239</td><td style="text-align:right; border-left:2px solid #ccc">3.821</td><td style="text-align:right"><strong>3.665</strong></td></tr>
+    <tr><td>ARC-Easy</td><td style="text-align:right">2.813</td><td style="text-align:right"><strong>2.804</strong></td><td style="text-align:right">2.811</td><td style="text-align:right; border-left:2px solid #ccc">2.160</td><td style="text-align:right"><strong>2.142</strong></td></tr>
+    <tr><td>ARC-Challenge</td><td style="text-align:right">2.937</td><td style="text-align:right"><strong>2.898</strong></td><td style="text-align:right">2.916</td><td style="text-align:right; border-left:2px solid #ccc">2.379</td><td style="text-align:right"><strong>2.361</strong></td></tr>
     <tr><td>HellaSwag</td><td style="text-align:right">2.729</td><td style="text-align:right"><strong>2.716</strong></td><td style="text-align:right">2.720</td><td style="text-align:right; border-left:2px solid #ccc">2.375</td><td style="text-align:right"><strong>2.374</strong></td></tr>
     <tr><td>LAMBADA</td><td style="text-align:right">1.937</td><td style="text-align:right"><strong>1.913</strong></td><td style="text-align:right">1.953</td><td style="text-align:right; border-left:2px solid #ccc"><strong>1.266</strong></td><td style="text-align:right">1.286</td></tr>
     <tr><td>Winograd</td><td style="text-align:right">2.805</td><td style="text-align:right"><strong>2.796</strong></td><td style="text-align:right">2.811</td><td style="text-align:right; border-left:2px solid #ccc">2.475</td><td style="text-align:right"><strong>2.459</strong></td></tr>
     <tr><td>Winogrande</td><td style="text-align:right"><strong>3.288</strong></td><td style="text-align:right">3.290</td><td style="text-align:right">3.291</td><td style="text-align:right; border-left:2px solid #ccc"><strong>3.064</strong></td><td style="text-align:right">3.076</td></tr>
-    <tr><td>BB Language ID</td><td style="text-align:right">10.972</td><td style="text-align:right"><strong>8.868</strong></td><td style="text-align:right">10.336</td><td style="text-align:right; border-left:2px solid #ccc">9.276</td><td style="text-align:right"><strong>9.226</strong></td></tr>
+    <tr><td>BB-Language-ID</td><td style="text-align:right">10.972</td><td style="text-align:right"><strong>8.868</strong></td><td style="text-align:right">10.336</td><td style="text-align:right; border-left:2px solid #ccc">9.276</td><td style="text-align:right"><strong>9.226</strong></td></tr>
     <tr><td>COPA</td><td style="text-align:right"><strong>2.854</strong></td><td style="text-align:right">2.864</td><td style="text-align:right">2.860</td><td style="text-align:right; border-left:2px solid #ccc">2.491</td><td style="text-align:right"><strong>2.440</strong></td></tr>
     <tr><td>PIQA</td><td style="text-align:right">2.947</td><td style="text-align:right">2.945</td><td style="text-align:right"><strong>2.934</strong></td><td style="text-align:right; border-left:2px solid #ccc"><strong>2.557</strong></td><td style="text-align:right">2.558</td></tr>
-    <tr><td>OpenBook QA</td><td style="text-align:right">4.540</td><td style="text-align:right"><strong>4.517</strong></td><td style="text-align:right">4.534</td><td style="text-align:right; border-left:2px solid #ccc">4.081</td><td style="text-align:right"><strong>4.047</strong></td></tr>
-    <tr><td>BB Dyck Languages</td><td style="text-align:right">4.579</td><td style="text-align:right">4.893</td><td style="text-align:right"><strong>4.260</strong></td><td style="text-align:right; border-left:2px solid #ccc">4.321</td><td style="text-align:right"><strong>3.418</strong></td></tr>
-    <tr><td>BB Operators</td><td style="text-align:right"><strong>5.545</strong></td><td style="text-align:right">5.707</td><td style="text-align:right">5.947</td><td style="text-align:right; border-left:2px solid #ccc">4.995</td><td style="text-align:right"><strong>4.513</strong></td></tr>
-    <tr><td>BB Repeat-Copy-Logic</td><td style="text-align:right">1.870</td><td style="text-align:right"><strong>1.797</strong></td><td style="text-align:right">1.819</td><td style="text-align:right; border-left:2px solid #ccc">1.362</td><td style="text-align:right"><strong>1.194</strong></td></tr>
+    <tr><td>OpenBook-QA</td><td style="text-align:right">4.540</td><td style="text-align:right"><strong>4.517</strong></td><td style="text-align:right">4.534</td><td style="text-align:right; border-left:2px solid #ccc">4.081</td><td style="text-align:right"><strong>4.047</strong></td></tr>
+    <tr><td>BB-Dyck-Languages</td><td style="text-align:right">4.579</td><td style="text-align:right">4.893</td><td style="text-align:right"><strong>4.260</strong></td><td style="text-align:right; border-left:2px solid #ccc">4.321</td><td style="text-align:right"><strong>3.418</strong></td></tr>
+    <tr><td>BB-Operators</td><td style="text-align:right"><strong>5.545</strong></td><td style="text-align:right">5.707</td><td style="text-align:right">5.947</td><td style="text-align:right; border-left:2px solid #ccc">4.995</td><td style="text-align:right"><strong>4.513</strong></td></tr>
+    <tr><td>BB-Repeat-Copy-Logic</td><td style="text-align:right">1.870</td><td style="text-align:right"><strong>1.797</strong></td><td style="text-align:right">1.819</td><td style="text-align:right; border-left:2px solid #ccc">1.362</td><td style="text-align:right"><strong>1.194</strong></td></tr>
     <tr><td>SQuAD</td><td style="text-align:right">4.047</td><td style="text-align:right">3.738</td><td style="text-align:right"><strong>3.597</strong></td><td style="text-align:right; border-left:2px solid #ccc">3.277</td><td style="text-align:right"><strong>3.249</strong></td></tr>
     <tr><td>CoQA</td><td style="text-align:right">4.634</td><td style="text-align:right">4.452</td><td style="text-align:right"><strong>4.242</strong></td><td style="text-align:right; border-left:2px solid #ccc">3.791</td><td style="text-align:right"><strong>3.628</strong></td></tr>
     <tr style="background-color:#d6ecff;"><td><strong>Mean</strong></td><td style="text-align:right">3.893</td><td style="text-align:right"><strong>3.770</strong></td><td style="text-align:right">3.825</td><td style="text-align:right; border-left:2px solid #ccc">3.251</td><td style="text-align:right"><strong>3.131</strong></td></tr>
@@ -279,9 +279,9 @@ In an attempt to further mitigate these issues, we report downstream correct ans
 
 ## Qualitative Results
 
-We also qualitatively inspect the highest and lowest scoring clusters. Discriptions are shown in Table 4. 
+We also qualitatively inspect the highest and lowest scoring clusters. Descriptions are shown in Table 4. 
 
-High scoring data is largely intuitive - educational data with clear explanations, logic, and grounded answers. It also shows that data containing unit conversions, and other paird information, is important for learning problem solving primitives; however, it is worth noting this may be specific to the kinds of downstream tasks in OpenHermes 2.5. 
+High scoring data is largely intuitive - educational data with clear explanations, logic, and grounded answers. It also shows that data containing unit conversions, and other paired information, is important for learning problem solving primitives; however, it is worth noting this may be specific to the kinds of downstream tasks in OpenHermes 2.5. 
 
 The lowest scoring examples also contain some clusters that are easily understood to be low quality: lists of dictionary pages and low context job postings, in addition to pop culture "slop". However, a surprising amount of low-level programming data is also deemed very low quality. We hypothesize this is due to the fact that the model is too weak to make use of this data, in addition to the fact that it is minimally present in OpenHermes 2.5.
 
@@ -289,11 +289,11 @@ Examples of high and low scoring data are show in the Appendix.
 
 ## Related Work
 
-This is not the first attempt to use influence functions for cluster reweighting. Quad framed influence based cluster level sampling as an armed bandit problem [15]. Instead of allowing an iterative algorithm to learn optimal weights, they sample according to influence computed on a single model state. In order to avoid diversity issues that come with simple $top-k$ selection methods, they enforce diversity through a tunable hyperparameter. By removing the need to tune this parameter and allowing selection to be driven, solely, by capabilities and behaviors desired in the downstream model, we offer a simpler, more flexible approach.
+This is not the first attempt to use influence functions for cluster reweighting. Zhang et al. (2024) framed influence-based, cluster-level sampling as a multi-armed bandit problem. Instead of allowing an iterative algorithm to learn optimal weights, they sample according to influence computed on a single model state. In order to avoid diversity issues that come with simple $top-k$ selection methods, they enforce diversity through a tunable hyperparameter. By removing the need to tune this parameter and allowing selection to be driven, solely, by behaviors desired in the downstream model, we offer a simpler, more flexible approach.
 
-There are also approaches that look at reweighting over clusters / domains such as (Liu et al., 2025) and (Diao et al., 2025). However, these approaches rely on grid searching, which is costly and heavily limits the number of parameters (in our setting, cluster weights) that can be optimized.
+There are also approaches that look at reweighting over clusters/domains such as (Liu et al., 2025) and (Diao et al., 2025). However, these approaches rely on grid search, which is costly and heavily limits the number of parameters (in our setting, cluster weights) that can be optimized.
 
-Additional recent work using metagradient-based data filtering was explored in (Calian et al., 2025). Their method uses meta-gradients to learn a scoring function, which is used for online minibatch selection. While offering an exciting direction, their method produced diminishing returns as the starting corpus improved, yielding minimal compute savings on C4. In contrast, our results demonstrate significant performance improvements using a starting corpus that is already orders of magnitude more compute efficient than C4.
+Additional recent work using metagradient-based data filtering was explored by Calian et al. (2025). Their method uses meta-gradients to learn a scoring function, which is used for online minibatch selection. While offering an exciting direction, they evaluate on notably weaker starting corpuses and yield minimal compute savings when they reach C4. In contrast, our results demonstrate significant performance improvements using a starting corpus that is already orders of magnitude more compute efficient than C4.
 
 Perhaps the most closely related work is that in (Engstrom et al., 2025). While similar, by transitioning from individual datapoints to groups of datapoints, our setup presents three advantages:
 
@@ -307,7 +307,7 @@ The setup we propose is far from optimized. No portion of $m-TrackStar$ was abla
 
 ### Better Utilizing Duplicate Data
 
-It is worth emphasizing that duplicate examples are left augmentation free. Recent work in (Prabhudesai et al., 2025) demonstrates significant performance improvements in multi-epoch training by randomly permuting samples. Not only should this improve performance given a set of pre-learned group weights, if added to the meta-learning process it should allow the learning algorithm to more aggressivly upsample high quality data as augmentation causes utility to decay more slowly with redundancy.
+It is worth emphasizing that duplicate examples are left augmentation-free. Recent work in (Prabhudesai et al., 2025) demonstrates significant performance improvements in multi-epoch training by randomly permuting samples. Not only should this improve performance given a set of pre-learned group weights, if added to the meta-learning process it should allow the learning algorithm to more aggressivly upsample high quality data as augmentation causes utility to decay more slowly with redundancy.
 
 ### Alternative Ways To Group Data
 
@@ -372,9 +372,9 @@ I want to say a quick thank you to Vincent Wilmet and Rohan Ahluwalia for feedba
 
 [17] Shizhe Diao, Yu Yang, Yonggan Fu, Xin Dong, Dan Su, Markus Kliegl, Zijia Chen, Peter Belcak, Yoshi Suhara, Hongxu Yin, Mostofa Patwary, Yingyan Lin, Jan Kautz, Pavlo Molchanov. CLIMB: CLustering-based Iterative Data Mixture Bootstrapping for Language Model Pre-training. arXiv preprint arXiv:2504.13161 (2025).
 
-[18] Dan Andrei Calian, Gregory Farquhar, Iurii Kemaev, Luisa M. Zintgraf, Matteo Hessel, Jeremy Shar, Junhyuk Oh, András György, Tom Schaul, Jeffrey Dean, Hado van Hasselt, David Silver. DataRater: Meta-Learned Dataset Curation. arXiv preprint arXiv:2505.17895.
+[18] Dan Andrei Calian, Gregory Farquhar, Iurii Kemaev, Luisa M. Zintgraf, Matteo Hessel, Jeremy Shar, Junhyuk Oh, András György, Tom Schaul, Jeffrey Dean, Hado van Hasselt, David Silver. DataRater: Meta-Learned Dataset Curation. arXiv preprint arXiv:2505.17895 (2025).
 
-[19] Mihir Prabhudesai, Mengning Wu. Diffusion Beats Autoregressive in Data-Constrained Settings. arXiv preprint arXiv:2507.15857.
+[19] Mihir Prabhudesai, Mengning Wu. Diffusion Beats Autoregressive in Data-Constrained Settings. arXiv preprint arXiv:2507.15857 (2025).
 
 [20] Stephen Merity, Caiming Xiong, James Bradbury, Richard Socher. Pointer Sentinel Mixture Models. arXiv preprint arXiv:1609.07843 (2016).
 
@@ -455,7 +455,7 @@ This ensures repeat examples and clusters are sufficiently spaced.
 
 We choose to exclude the evals in Table 5 from DCLM-CORE-CLEAN due to their high variance and general lack of coherence at our scale. Each has multiple cases of 411M models outperforming 1.4B models trained on the same data!!!
 
-> It is worth noting that we exclude results where our method overperforms **and** underperforms. Research is pursuit of truth - not benchmaxxing.
+> It is worth noting that we exclude results where our method overperforms **and** underperforms. Research is pursuit of truth - not benchmarking.
 
 ### Analysis Of Bottom/Top Scoring Clusters
 
