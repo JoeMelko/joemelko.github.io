@@ -1,10 +1,14 @@
 # Learning Which Data To Learn: The TerRIFIC Meta-Optimizer
 
+<style>
+blockquote { background-color: #f7f7f7; border: 1px solid #e5e5e5; border-radius: 6px; padding: 0.75em 1em; }
+</style>
+
 > TL;DR: We learn sampling weights over arbitrary data clusters using efficient influence approximations. Starting from TrackStar, we introduce m‑TrackStar to stably approximate influence and align training data with a target set. Our meta‑optimizer (TerRIFIC) updates cluster logits via a scaled, clipped function of cluster–target alignment, improving performance over an already strong baseline. The method is simple, scalable, and agnostic to how clusters are defined.
 
 <img src="../media/l2l/results1.png" alt="Figure 1: TerRIFIC Overview" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 
-<p style="text-align:center"><em>Figure 1: TerRIFIC iteratively improves data weights resulting in drastically lower perplexity across various held out datasets (lower is better)</em></p>
+<p style="text-align:center"><em>Figure 1: TerRIFIC iteratively improves data weights resulting in drastically lower perplexity across various held out datasets</em></p>
 
 Which data you choose to learn can often matter as much as model size or total tokens. Yet curating mixtures typically relies on ad‑hoc heuristics, expensive grid searches over domain weights, or per‑example selection that does not scale. We introduce TerRIFIC (Topic Reweighting with Influence Functions In Clusters): a simple, scalable approach that meta‑learns how to sample from arbitrary groups of data using efficient influence approximations.
 
@@ -142,7 +146,7 @@ We evaluate performance using perplexity on Paloma [14], wikitext [21], OpenThou
     <tr>
       <th rowspan="2" style="text-align:left">Task</th>
       <th colspan="3" style="text-align:center">411M</th>
-      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1B</th>
+      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B</th>
     </tr>
     <tr>
       <th style="text-align:right">Baseline</th>
@@ -226,9 +230,9 @@ We use these downstream evaluations, largely, as a secondary performance measure
 
 > The weakness of accuracy based evaluation at this scale (and up a few OOMs further actually !!!) is made obvious by results on Fineweb-Edu and RefinedWeb [10].
 > * @411M, 1x Chinchilla - Fineweb +2.9%
-> * @1B, 1x Chinchilla - Fineweb -0.9%
-> * @1b, 5x Chinchilla - Fineweb +2.4%
-> * @7b, 1x Chinchilla - Fineweb -1.1%
+> * @1.4B, 1x Chinchilla - Fineweb -0.9%
+> * @1.4B, 5x Chinchilla - Fineweb +2.4%
+> * @7B, 1x Chinchilla - Fineweb -1.1%
 >
 > ... not exactly strong directional signal.
 
