@@ -1,5 +1,8 @@
 <style>
 blockquote { background-color: #f7f7f7; border: 1px solid #e5e5e5; border-radius: 6px; padding: 0.75em 1em; }
+/* Add lines under model-size/tokens header row and under iteration-number header row */
+table thead tr:first-child th { border-bottom: 2px solid #cfcfcf; }
+table thead tr:nth-child(2) th { border-bottom: 1px solid #e5e5e5; }
 </style>
 
 > TL;DR: We learn sampling weights over arbitrary data clusters using efficient influence approximations. Starting from TrackStar, we introduce m‑TrackStar to stably approximate influence and align training data with a target set. Our meta‑optimizer (TerRIFIC) updates cluster logits via a scaled, clipped function of cluster–target alignment, improving performance over an already strong baseline. The method is simple, scalable, and agnostic to how clusters are defined.
@@ -69,7 +72,7 @@ Under a local quadratic approximation and with $R$ estimating the projected Fish
 
 ### $m-TrackStar$
 
-We propose 2 changes to their method. First, we remove the second moment estimate, $V$, for simplicity as empirical results have shown that it is not critical for efficacy [6]. Second, we replace L2-Normalization with gradient clipping. This allows us to mitigate the effect of erroneous data that produce large gradient norms, while not inflating the measured utility of low gradient norm examples. It is also more principled; influence functions are local approximations which lose accuracy when step sizes are too large, not too small. We implement this prior to computing $R$ so the approximate curvature of the loss landscape is computed w.r.t. "reasonable" data, not erroneous examples which can heavily skew the covariance matrix. We call the new primitive modified-TrackStar, or $m-TrackStar$, and define it below:
+We propose 2 changes to their method. First, we remove the second moment estimate, $V$, for simplicity, as empirical results have shown that it is not critical for efficacy [6]. Second, we replace L2-Normalization with gradient clipping. This allows us to mitigate the effect of erroneous data that produce large gradient norms, while not inflating the measured utility of low gradient norm examples. It is also more principled; influence functions are local approximations which lose accuracy when step sizes are too large, not too small. We implement this prior to computing $R$ so the approximate curvature of the loss landscape is computed w.r.t. "reasonable" data, not erroneous examples which can heavily skew the covariance matrix. We call the new primitive modified-TrackStar, or $m-TrackStar$, and define it below:
 
 $$
 mG_{\theta}(z)=R^{-1/2}\,P_{d}\,\mathrm{clip}_{t}\!\bigl(\nabla_{\theta} L(z,\theta)\bigr) \tag{6}
@@ -212,7 +215,7 @@ Results in Figure 2 show nearly all performance improvements transfer. In fact, 
     <tr><td>BB-Repeat-Copy-Logic</td><td style="text-align:right">0.000</td><td style="text-align:right">0.000</td><td style="text-align:right"><strong>0.031</strong></td><td style="text-align:right; border-left:2px solid #ccc">0.031</td><td style="text-align:right"><strong>0.063</strong></td></tr>
     <tr><td>SQuAD</td><td style="text-align:right">0.126</td><td style="text-align:right">0.121</td><td style="text-align:right"><strong>0.142</strong></td><td style="text-align:right; border-left:2px solid #ccc"><strong>0.380</strong></td><td style="text-align:right"><strong>0.380</strong></td></tr>
     <tr><td>CoQA</td><td style="text-align:right">0.150</td><td style="text-align:right">0.156</td><td style="text-align:right"><strong>0.163</strong></td><td style="text-align:right; border-left:2px solid #ccc"><strong>0.301</strong></td><td style="text-align:right"><strong>0.301</strong></td></tr>
-    <tr><td><strong>Mean</strong></td><td style="text-align:right">0.185</td><td style="text-align:right"><strong>0.192</strong></td><td style="text-align:right">0.190</td><td style="text-align:right; border-left:2px solid #ccc">0.338</td><td style="text-align:right"><strong>0.343</strong></td></tr>
+    <tr style="background-color:#eaf4ff;"><td><strong>Mean</strong></td><td style="text-align:right">0.185</td><td style="text-align:right"><strong>0.192</strong></td><td style="text-align:right">0.190</td><td style="text-align:right; border-left:2px solid #ccc">0.338</td><td style="text-align:right"><strong>0.343</strong></td></tr>
   </tbody>
 </table>
 
@@ -265,7 +268,7 @@ We use these downstream evaluations, largely, as a secondary performance measure
     <tr><td>BB Repeat-Copy-Logic</td><td style="text-align:right">1.870</td><td style="text-align:right"><strong>1.797</strong></td><td style="text-align:right">1.819</td><td style="text-align:right; border-left:2px solid #ccc">1.362</td><td style="text-align:right"><strong>1.194</strong></td></tr>
     <tr><td>SQuAD</td><td style="text-align:right">4.047</td><td style="text-align:right">3.738</td><td style="text-align:right"><strong>3.597</strong></td><td style="text-align:right; border-left:2px solid #ccc">3.277</td><td style="text-align:right"><strong>3.249</strong></td></tr>
     <tr><td>CoQA</td><td style="text-align:right">4.634</td><td style="text-align:right">4.452</td><td style="text-align:right"><strong>4.242</strong></td><td style="text-align:right; border-left:2px solid #ccc">3.791</td><td style="text-align:right"><strong>3.628</strong></td></tr>
-    <tr><td><strong>Mean (17 tasks)</strong></td><td style="text-align:right">3.893</td><td style="text-align:right"><strong>3.770</strong></td><td style="text-align:right">3.825</td><td style="text-align:right; border-left:2px solid #ccc">3.251</td><td style="text-align:right"><strong>3.131</strong></td></tr>
+    <tr style="background-color:#eaf4ff;"><td><strong>Mean</strong></td><td style="text-align:right">3.893</td><td style="text-align:right"><strong>3.770</strong></td><td style="text-align:right">3.825</td><td style="text-align:right; border-left:2px solid #ccc">3.251</td><td style="text-align:right"><strong>3.131</strong></td></tr>
   </tbody>
 </table>
 
