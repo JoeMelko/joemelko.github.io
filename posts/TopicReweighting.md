@@ -1,5 +1,3 @@
-# Learning Which Data To Learn: The TerRIFIC Meta-Optimizer
-
 <style>
 blockquote { background-color: #f7f7f7; border: 1px solid #e5e5e5; border-radius: 6px; padding: 0.75em 1em; }
 </style>
