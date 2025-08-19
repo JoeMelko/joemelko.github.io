@@ -141,8 +141,8 @@ We evaluate performance using perplexity on Paloma [14], wikitext [21], OpenThou
   <thead>
     <tr>
       <th rowspan="2" style="text-align:left">Task</th>
-      <th colspan="3" style="text-align:center">411M</th>
-      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B</th>
+      <th colspan="3" style="text-align:center">411M Model - 8.2B Tokens</th>
+      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B Model - 28B Tokens</th>
     </tr>
     <tr>
       <th style="text-align:right">Baseline</th>
@@ -182,8 +182,8 @@ Results in Figure 2 show nearly all performance improvements transfer. In fact, 
   <thead>
     <tr>
       <th rowspan="2" style="text-align:left">Task</th>
-      <th colspan="3" style="text-align:center">411M</th>
-      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B</th>
+      <th colspan="3" style="text-align:center">411M Model - 8.2B Tokens</th>
+      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B Model - 28B Tokens</th>
     </tr>
     <tr>
       <th style="text-align:right">Baseline</th>
@@ -236,8 +236,8 @@ We use these downstream evaluations, largely, as a secondary performance measure
   <thead>
     <tr>
       <th rowspan="2" style="text-align:left">Task</th>
-      <th colspan="3" style="text-align:center">411M</th>
-      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B</th>
+      <th colspan="3" style="text-align:center">411M Model - 8.2B Tokens</th>
+      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B Model - 28B Tokens</th>
     </tr>
     <tr>
       <th style="text-align:right">Baseline</th>
@@ -432,8 +432,8 @@ This ensures repeat examples and clusters are sufficiently spaced.
   <thead>
     <tr>
       <th rowspan="2" style="text-align:left">Task</th>
-      <th colspan="3" style="text-align:center">411M</th>
-      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B</th>
+      <th colspan="3" style="text-align:center">411M Model - 8.2B Tokens</th>
+      <th colspan="2" style="text-align:center; border-left:2px solid #ccc">1.4B Model - 28B Tokens</th>
     </tr>
     <tr>
       <th style="text-align:right">Baseline</th>
