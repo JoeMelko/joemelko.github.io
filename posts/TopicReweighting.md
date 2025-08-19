@@ -234,7 +234,7 @@ We use these downstream evaluations, largely, as a secondary performance measure
 > * @1.4B, 5x Chinchilla - Fineweb +2.4%
 > * @7B, 1x Chinchilla - Fineweb -1.1%
 >
-> ... not exactly strong directional signal.
+> ... not ideal
 
 <table style="border-collapse:collapse; width:100%">
   <thead>
