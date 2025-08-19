@@ -144,7 +144,7 @@ To improve efficiency, only a small subset of examples is used to effectively ap
 
 <img src="../media/l2l/downstream.png" alt="Figure 2: TerRIFIC Downstream" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 
-<p style="text-align:center"><em>Figure 2: Performance of 1.4B models on DCLM-CORE-CLEAN. This chart is evidence of the strenght of our starting corpus DCLM-Baseline, which TerRIFIC further improves upon.</em></p>
+<p style="text-align:center"><em>Figure 2: Performance of 1.4B models on DCLM-CORE-CLEAN.</em></p>
 
 We evaluate performance using perplexity on Paloma (Magnusson et al., 2023), WikiText (Merity et al., 2016), OpenThoughts-114k (Guha et al., 2025), CodeAlpaca-20k (Chaudhary, 2023), OpenMathInstruct 2 (Toshniwal et al., 2024) and a held-out shard of the DCLM-Baseline corpus (Li et al., 2024).
 
