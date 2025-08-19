@@ -24,13 +24,15 @@ Our results demonstrate meta‑learning can discover significant performance imp
 
 We would ideally like to frame dataset selection as the following optimization problem:
 
-$$
+\[
 \max_{S \subseteq D} U(\theta_S^*) \quad \text{s.t.} \quad |S| \leq k \tag{1}
-$$
+\]
 
 where $S$ is our selected subset, $D$ is the full dataset, $\theta_S^*$ represents a model trained on subset $S$ with parameters $\theta$, $U(\cdot)$ is some utility function, and $k$ is our target dataset size due to compute constraints. We also stated that, in practice, **most** algorithms use
 
-$$\max_{S \subseteq D}\sum_{x \in S} U(x) \quad \text{s.t.} \quad |S| \leq k \tag{2}$$
+\[
+\max_{S \subseteq D}\sum_{x \in S} U(x) \quad \text{s.t.} \quad |S| \leq k \tag{2}
+\]
 
 instead as computing $\theta_S^*$ is prohibitively expensive.
 
@@ -46,7 +48,7 @@ Practically speaking, a useful method should accomplish the following three thin
 
 Before we can work on groups of examples, we must first determine how to measure if a sample helps(harms) learning for the capability(ies) we are interested in. We will do this using influence functions [1], which are defined in the following way:
 
-$$I(z, z_{test}) = -\nabla_{\theta} L(z_{test}, \theta^*)^T H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*) \tag{3}$$
+\[I(z, z_{test}) = -\nabla_{\theta} L(z_{test}, \theta^*)^T H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*) \tag{3}\]
 
 where $\theta^*$ represents the optimal model parameters, $H_{\theta^*}$ is the Hessian matrix at $\theta^*$, $z$ is a training example, and $z_{test}$ is a target example. With an asymptotically small step size, we are able to measure how much training on $z$ will reduce loss (i.e. learn) $z_{test}$.
 
@@ -56,15 +58,15 @@ Due to astronomical storage and compute costs (particularly w.r.t Hessians), exp
 
 Due to it's demonstrated utility on multi-billion parameter scale transformers, we use TrackStar as our starting point [6], which the authors define as:
 
-$$
+\[
 G_{\theta}(z)=R^{-1/2}\,P_{d}\,\nabla_{\theta} L(z,\theta)\,V^{-1/2} \tag{4}
-$$
+\]
 
 where $z$ is the training example of interest, $P_{d}$ is a random projection operator, $R$ is the empirical Fisher matrix of the projected gradients, $\theta$ denotes the model parameters, and $V$ is the optimizer's second-moment estimate at $\theta$. It is worth noting that $P_{d}$ uses 2-sided projections defined as:
 
-$$
+\[
 P_{d_0}\, W\, P_{d_1}^{\top} \;\in\; \mathbb{R}^{\sqrt{d} \times \sqrt{d}} \tag{5}
-$$
+\]
 
 where $W\!\in\!\mathbb{R}^{n\times m}$ is a gradient matrix, and we define $P_{d_0},P_{d_1}\!\sim\!\mathcal N(0,1/\sqrt d)$ with $P_{d_0}\!\in\!\mathbb{R}^{\sqrt d \times m}$, $P_{d_1}\!\in\!\mathbb{R}^{n \times \sqrt d}$. Also, to further decrease the representation size, layers are concatenated into in B blocks. Also, to accomodate the differences in attention and MLP, these are concatenated separately.
 
@@ -74,9 +76,9 @@ Under a local quadratic approximation and with $R$ estimating the projected Fish
 
 We propose 2 changes to their method. First, we remove the second moment estimate, $V$, for simplicity, as empirical results have shown that it is not critical for efficacy [6]. Second, we replace L2-Normalization with gradient clipping. This allows us to mitigate the effect of erroneous data that produce large gradient norms, while not inflating the measured utility of low gradient norm examples. It is also more principled; influence functions are local approximations which lose accuracy when step sizes are too large, not too small. We implement this prior to computing $R$ so the approximate curvature of the loss landscape is computed w.r.t. "reasonable" data, not erroneous examples which can heavily skew the covariance matrix. We call the new primitive modified-TrackStar, or $m-TrackStar$, and define it below:
 
-$$
+\[
 mG_{\theta}(z)=R^{-1/2}\,P_{d}\,\mathrm{clip}_{t}\!\bigl(\nabla_{\theta} L(z,\theta)\bigr) \tag{6}
-$$
+\]
 
 where $\operatorname{clip}_{t}(g)$ is standard L2-norm gradient clipping that rescales a gradient $g$ so its Euclidean norm never exceeds the maximum threshold $t$.
 
@@ -110,7 +112,7 @@ Armed with an understanding of how to optimally update group weights at a given 
 
 To ensure a smooth optimization landscape, we employ standard clipping and rescaling with $f$, which we define as:
 
-$$f(\bar I_j) = \mathrm{clip}\!\left(\frac{\bar I_j - \mu}{\sigma},\, \text{max}_{\text{step}}\right) \tag{7}$$
+\[f(\bar I_j) = \mathrm{clip}\!\left(\frac{\bar I_j - \mu}{\sigma},\, \text{max}_{\text{step}}\right) \tag{7}\]
 
 where $W=\{\,j:\; q_{0.001}(\{\bar I_{\ell}\}) < \bar I_j < q_{0.999}(\{\bar I_{\ell}\})\,\}$ over $\ell\in\{1,\dots,|C|\}$, and $\mu,\sigma$ are the mean and standard deviation over $\{\bar I_k: k\in W\}$.
 
@@ -383,7 +385,7 @@ I want to say a quick thank you to Vincent Wilmet and Rohan Ahluwalia for feedba
 
 [23] Etash Guha, Ryan Marten, Sedrick Keh, et al. OpenThoughts: Data Recipes for Reasoning Models. arXiv preprint arXiv:2506.04178 (2025).
 
-[24] Mike Conover, Matt Hayes, Ankit Mathur, Jianwei Xie, Jun Wan, Sam Shah, Ali Ghodsi, Patrick Wendell, Matei Zaharia, Reynold Xin. Free Dolly: Introducing the World’s First Truly Open Instruction-Tuned LLM. Databricks Blog (2023).
+[24] Mike Conover, Matt Hayes, Ankit Mathur, Jianwei Xie, Jun Wan, Sam Shah, Ali Ghodsi, Patrick Wendell, Matei Zaharia, Reynold Xin. Free Dolly: Introducing the World's First Truly Open Instruction-Tuned LLM. Databricks Blog (2023).
 
 [25] Sahil Chaudhary. Code Alpaca: An Instruction-following LLaMA Model for Code Generation. GitHub repository (2023).
 
@@ -406,24 +408,24 @@ For every cluster $c_i$ draw one random permutation $\rho_i$ of its members. Emi
 
 1. Jitter within each cluster
 - Draw one random offset for each cluster  
-   $$
+   \[
    s_i \sim \mathcal U(0,1), \qquad i = 1,\dots,|C| . \tag{8}
-   $$
+   \]
 
 2. Time-stamp every item 
 - Let $\rho_i$ be the within-cluster permutation and let $n_i = |c_i|$.  
 - For every $j = 0,\dots,n_i-1$ assign the fractional time-stamp  
-   $$
+   \[
    t_{ij} = \frac{\,j + s_i\,}{n_i} \tag{9},
-   $$
+   \]
    and pair it with the data item $\rho_i[j]$.
 
 3. Global sort  
 - Gather all pairs $\{(t_{ij},\rho_i[j])\}_{i,j}$ and sort them by $t_{ij}$.  
 - The sorted data items form the final permutation  
-   $$
+   \[
    \pi \in \{0,\dots,N-1\}, \qquad N = \sum_{i=1}^{|C|} n_i . \tag{10}
-   $$
+   \]
 
 This ensures repeat examples and clusters are sufficiently spaced.
 
