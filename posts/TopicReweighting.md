@@ -125,7 +125,7 @@ When applied iteratively, via Algorithm 2, our optimizer refines the cluster log
 > - Procedure
 >   1. For $t = 0,1,\dots,T-1$:
 >      - Sample $S_t \sim \mathrm{mix}(\mathrm{softmax}(\mathbf{logits}^{(t)}))$ and train a model $\theta^{(t)} = A(S_t)$.
->      - $$\text{logits}^{(t+1)} = \text{TerRIFIC.step}(\theta^{(t)},\mathcal{V},C,\text{logit}^{(t)}, \eta, max_{step})$.
+>      - $\text{logits}^{(t+1)} = \text{TerRIFIC.step}(\theta^{(t)},\mathcal{V},C,\text{logit}^{(t)}, \eta, max_{step})$.
 >   2. return $\text{logits}^{(T)}$
 
 ## Experimental Setup
