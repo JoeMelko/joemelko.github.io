@@ -9,6 +9,8 @@ table thead tr:nth-child(2) th { border-bottom: 1px solid #e5e5e5; }
 table th, table td { text-align: center !important; }
 </style>
 
+> TL;DR: We learn sampling weights over data clusters using efficient influence approximations. We introduce m‑TrackStar to stably approximate influence and a meta‑optimizer (TerRIFIC) to iteratively update cluster weights based on cluster–target influence approximations. Utilizing data weights learned with TerRIFIC results in significant performance improvements - even when starting with a highly curated corpus. Our method is simple, scalable, and agnostic to how clusters are defined.
+
 <img src="../media/l2l/results1.png" alt="Figure 1: TerRIFIC Overview" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 
 <p style="text-align:center"><em>Figure 1: TerRIFIC iteratively improves data weights resulting in drastically lower perplexity across various held out datasets</em></p>
