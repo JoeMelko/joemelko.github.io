@@ -58,7 +58,7 @@ where $\theta^*$ represents the optimal model parameters, $H_{\theta^*}$ is the 
 
 Due to astronomical storage and compute costs, explicit influence function computations are inefficient and impractical. Instead there are various methods that aim to approximate influence using block diagonal approximations of the Hessian (Martens et al., 2015; George et al., 2018), random projections (Park et al., 2023), and combinations of the two (Choe et al., 2024; Chang et al., 2024). 
 
-Due to its demonstrated utility on multi-billion parameter scale transformers, we use TrackStar as our starting point (Change et al., 2024), which the authors define as:
+Due to its demonstrated utility on multi-billion parameter scale transformers, we use TrackStar as our starting point (Chang et al., 2024), which the authors define as:
 
 $$
 G_{\theta}(z)=R^{-1/2}\,P_{d}\,\nabla_{\theta} L(z,\theta)\,V^{-1/2} \tag{4}
