@@ -56,9 +56,9 @@ where $\theta^*$ represents the optimal model parameters, $H_{\theta^*}$ is the 
 
 ### Addressing Inefficiencies
 
-Due to astronomical storage and compute costs, explicit influence function computations are inefficient and impractical. Instead there are various methods that aim to approximate influence using block diagonal approximations of the Hessian (Martens et al., 2015; George et al., 2018), random projections (Park et al., 2023), and combinations of the two (Choe et al., 2024; Gupta et al., 2024). 
+Due to astronomical storage and compute costs, explicit influence function computations are inefficient and impractical. Instead there are various methods that aim to approximate influence using block diagonal approximations of the Hessian (Martens et al., 2015; George et al., 2018), random projections (Park et al., 2023), and combinations of the two (Choe et al., 2024; Chang et al., 2024). 
 
-Due to its demonstrated utility on multi-billion parameter scale transformers, we use TrackStar as our starting point (Gupta et al., 2024), which the authors define as:
+Due to its demonstrated utility on multi-billion parameter scale transformers, we use TrackStar as our starting point (Change et al., 2024), which the authors define as:
 
 $$
 G_{\theta}(z)=R^{-1/2}\,P_{d}\,\nabla_{\theta} L(z,\theta)\,V^{-1/2} \tag{4}
@@ -76,7 +76,7 @@ Under a local quadratic approximation and with $R$ estimating the projected Fish
 
 ### $m-TrackStar$
 
-We propose 2 changes to their method. First, we remove the second moment estimate, $V$, for simplicity, as empirical results have shown that it is not critical for efficacy (Gupta et al., 2024). Second, we replace L2 normalization with gradient clipping. This allows us to mitigate the effect of erroneous data, without inflating the measured utility of low gradient norm examples. It is also more principled; influence functions are local approximations which lose accuracy when step sizes are too large, not too small. We implement this prior to computing $R$ so the approximate curvature of the loss landscape is computed w.r.t. "reasonable" data, not erroneous examples, which can heavily skew the covariance matrix. We call the new primitive modified-TrackStar, or $m-TrackStar$, and define it below:
+We propose 2 changes to their method. First, we remove the second moment estimate, $V$, for simplicity, as empirical results have shown that it is not critical for efficacy (Chang et al., 2024). Second, we replace L2 normalization with gradient clipping. This allows us to mitigate the effect of erroneous data, without inflating the measured utility of low gradient norm examples. It is also more principled; influence functions are local approximations which lose accuracy when step sizes are too large, not too small. We implement this prior to computing $R$ so the approximate curvature of the loss landscape is computed w.r.t. "reasonable" data, not erroneous examples, which can heavily skew the covariance matrix. We call the new primitive modified-TrackStar, or $m-TrackStar$, and define it below:
 
 $$
 mG_{\theta}(z)=R^{-1/2}\,P_{d}\,\mathrm{clip}_{t}\!\bigl(\nabla_{\theta} L(z,\theta)\bigr) \tag{6}
