@@ -355,7 +355,7 @@ I want to say a quick thank you to Vincent Wilmet and Rohan Ahluwalia for feedba
 
 [5] Sang Keun Choe, Hwijeen Ahn, Juhan Bae, Kewen Zhao, Minsoo Kang, Youngseog Chung, Adithya Pratapa, Willie Neiswanger, Emma Strubell, Teruko Mitamura, Jeff Schneider, Roger Grosse, Eric Xing. *What is Your Data Worth to GPT? LLM-Scale Data Valuation with Influence Functions*. arXiv preprint arXiv:2405.13954 (2024).
 
-[6] Priyanshu Gupta, Yassir Fathullah, Xiang Ren. Scaling Influence Functions to Modern Deep Learning. arXiv preprint arXiv:2410.17413 (2024).
+[6] Tyler A. Chang, Dheeraj Rajagopal, Tolga Bolukbasi, Lucas Dixon, Ian Tenney. Scalable Influence and Fact Tracing for Large Language Model Pretraining. arXiv preprint arXiv:2410.17413v1 (2024).
 
 [7] Zichun Yu, Spandan Das, Chenyan Xiong. *MATES: Model-Aware Data Selection for Efficient Pretraining with Data Influence Models*. arXiv preprint arXiv:2406.06046 (2024).
 
