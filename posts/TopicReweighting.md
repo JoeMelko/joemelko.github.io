@@ -50,7 +50,7 @@ Practically speaking, a useful method should accomplish the following three thin
 
 Before we can work on groups of examples, we must first determine how to measure if a sample helps (harms) learning for the capability(ies) we are interested in. We will do this using influence functions (Koh et al., 2017), which are defined in the following way:
 
-$$I(z, z_{test}) = -\nabla_{\theta} L(z_{test}, \theta^*)^T H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*) \tag{3}$$
+$$I(z, z_{test}) = -\nabla_{\theta} L(z_{test}, \theta^*)^{\top} H_{\theta^*}^{-1} \nabla_{\theta} L(z, \theta^*) \tag{3}$$
 
 where $\theta^*$ represents the optimal model parameters, $H_{\theta^*}$ is the Hessian matrix at $\theta^*$, $z$ is a training example, and $z_{test}$ is a target example. With an asymptotically small step size, we are able to measure how much training on $z$ will reduce loss (i.e. learn) $z_{test}$.
 
