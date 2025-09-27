@@ -1,0 +1,31 @@
+{
+    "uuid": "0ba3dbf1-c43b-4694-a80d-c490ec871583",
+    "model": "open_lm_1b_swiglutorch",
+    "creation_date": "2025_08_18-07_59_08",
+    "name": "/mnt/one/home/jmelko/dclm_exp/eval/mmlu_and_lowvar",
+    "eval_metrics": {
+        "icl": {
+            "hellaswag_zeroshot": 0.5289,
+            "jeopardy": 0.1957515999674797,
+            "bigbench_qa_wikidata": 0.5554,
+            "arc_easy": 0.6284,
+            "arc_challenge": 0.3268,
+            "copa": 0.6900,
+            "commonsense_qa": 0.3186,
+            "piqa": 0.7242,
+            "openbook_qa": 0.3560,
+            "lambada_openai": 0.5511,
+            "hellaswag": 0.5291,
+            "winograd": 0.7179,
+            "winogrande": 0.5596,
+            "bigbench_dyck_languages": 0.2360,
+            "agi_eval_lsat_ar":  0.2609,
+            "bigbench_cs_algorithms": 0.4470,
+            "bigbench_operators": 0.2190,
+            "bigbench_repeat_copy_logic": 0.03125,
+            "squad": 0.3190,
+            "coqa": 0.26681697368621826,
+            "boolq":0.5489,
+            "bigbench_language_identification": 0.25029999017715454
+        }
+   
