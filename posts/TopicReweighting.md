@@ -520,8 +520,8 @@ XML Sitemap\n\n\nURLPriorityChange frequencyLast modified (GMT)\nhttps://m-meshi
 
 ```bibtex
 @misc{melko2025topicreweighting,
-  author = {Joe Melko},
-  title  = {Topic Reweighting},
+  author = {Joseph Melkonian},
+  title  = {Learning Which Data To Learn: The TerRIFIC Meta-Optimizer},
   year   = {2025},
   url    = {https://joemelko.github.io/blog.html?post=TopicReweighting}
 }
