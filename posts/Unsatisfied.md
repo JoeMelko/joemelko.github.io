@@ -1,3 +1,14 @@
+<style>
+body { background-color: #121212; color: #e6e6e6; }
+blockquote { background-color: #1f1f1f; border: 1px solid currentColor; border-radius: 6px; padding: 0.75em 1em; line-height: 1.45; }
+blockquote li { margin: 0.15em 0; }
+/* Add lines under model-size/tokens header row and under iteration-number header row */
+table { border-top: 3px solid #ffffff; border-bottom: 3px solid #ffffff; }
+table thead tr:first-child th { border-bottom: 2px solid #cfcfcf; }
+table thead tr:nth-child(2) th { border-bottom: 1px solid #e5e5e5; }
+table th, table td { text-align: center !important; }
+</style>
+
 While it can often seem more exciting to work on algorithms and optimizers, the lifeblood of AI models is the data they are trained on.
 
 Simply put: *you need the right data to learn the right patterns*.
