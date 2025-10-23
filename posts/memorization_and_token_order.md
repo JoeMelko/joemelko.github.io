@@ -30,7 +30,7 @@ The method is simple:
 2. Swap the final two tokens in the prefix and pass the sequence again.
 3. Analyze changes in gradients and activations.
 
-> We choose to analyze the layer 11 mlp.down_proj
+> We choose to analyze the layer 11 mlp.down_proj.
 
 ## Results
 
