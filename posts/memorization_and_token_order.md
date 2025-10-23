@@ -54,7 +54,7 @@ We find this is exactly the case. In fact, while the token gradients for non-mem
 
 ## Final Thoughts
 
-Local token-order swaps cleanly separate memorized from non-memorized spans and give a simple, label-free audit. If we want to reduce this brittleness, we expect that the two easiest knobs are: small token-order jitter during training or mild architectural smoothing (e.g., Canon-style).
+Local token-order swaps cleanly separate memorized from non-memorized spans and give a simple, label-free audit. If we want to reduce this brittleness, we expect that the two easiest knobs are: small token-order jitter during training or mild architectural smoothing (e.g., canon-style).
 
 To substantiate these remedies, one may train small models from scratch with a handful of examples heavily upsampled to probe memorization under three regimes: no mitigation, token‑order jitter, and architectural smoothing. We hope someone pursues this direction.
 
