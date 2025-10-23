@@ -36,11 +36,11 @@ The method is simple:
 
 || Non-memorized | Memorized |
 |-------:| ------------: | --------: |
-|Activation Similarity|        **0.9013** |    0.8366 |
-|Gradient Similarity (suffix tokens)|        **0.9294** |    0.6875 |
+|Activation Similarity|        0.9013 |    **0.8366** |
+|Gradient Similarity (suffix tokens)|        0.9294 |    **0.6875** |
 
 
-*Table 1: Alignment between original and swapped sequences for activations and gradients after token-order changes. Memorized examples show far less robustness to token order swaps.* 
+*Table 1: Alignment between original and swapped sequences for activations and gradients after token-order changes. Memorized examples show far less robustness to token order swaps. Larger effect in bold.* 
 
 We find that memorized examples exhibit drastically higher sensitivities to token order changes for both activations and gradients. Additionally, analysis of gradient norms and loss changes shows the drastic impact a single token swap has on memorized examples. While loss remains an order of magnitude lower for the memorized examples, the gradient norm exceeds that of the non-memorized examples.
 
