@@ -9,6 +9,10 @@ table thead tr:nth-child(2) th { border-bottom: 1px solid #e5e5e5; }
 table th, table td { text-align: center !important; }
 </style>
 
+<img src="../media/memorize/decay.png" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
+
+*Figure 1: Cosine similarities between unchanged and flipped token-level gradients based on distance from the swapped tokens.*
+
 Recent work (Prabhudesai et al., 2025) has exposed an interesting characteristic of causal transformers:
 
 *they can be trained longer and to a lower final loss when token ordering is not strictly adhered to.*
@@ -40,13 +44,9 @@ We find that memorized examples exhibit drastically higher sensitivities to toke
 
 <img src="../media/memorize/token_flip_run2_side_by_side%20%282%29.png" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 
-*Figure 1: Impact of swapping final prefix tokens on loss and gradient norm of suffix tokens for memorized and non-memorized examples.*
+*Figure 2: Impact of swapping final prefix tokens on loss and gradient norm of suffix tokens for memorized and non-memorized examples.*
 
 It is also interesting to consider how representational differences are impacted by the proximity to the token order swap. If we consider next-token prediction as a combination of memorization and conceptual representation, we would expect the impact of token swapping on non-memorized data to be highly local, while memorized data would suffer consequences over far longer portions of the sequence. 
-
-<img src="../media/memorize/decay.png" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
-
-*Figure 2: Cosine similarities between unchanged and flipped token-level gradients based on distance from the swapped tokens.*
 
 We find this is exactly the case. In fact, while the token gradients for non-memorized examples rapidly approach their non-corrupted gradient counterparts as we move away from the token swap, whereas the memorized examples plateau at roughly 0.8. It seems that either memorization fundamentally corrupts conceptual representation, or that memorized examples have drastically different conceptual meanings for slightly different token orders. It is highly likely that either can be true for various examples.
 
