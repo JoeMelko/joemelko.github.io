@@ -13,11 +13,13 @@ table th, table td { text-align: center !important; }
 
 <p style="text-align:center"><em>Figure 1: TerRIFIC Curricula consistently outperforms vanilla TerRIFIC, which already sizably beats our strong baseline.</em></p>
 
+>TL;DR: We meta-learn a continuous curriculum. Our function $f(N,G)$ maps a grouping mechanism to sampling distributions for all values of N, tokens seen. We also propose a greedy algorithm for ordering sequnces to adhere to curricula, which has some desirable qualities when compared to simple shuffling. Our method yields consistent gains, especially on code, math, and reasoning, and often matches or beats models trained with 2× more compute, while staying simple, scalable, and agnostic to how groups are defined.
+
 In this work we introduce **TerRIFIC Curricula**, a scalable, principled way to discover how to optimally sample from a training data distribution *throughout* the course of training. Our method can, non-invasively, participate in any, or all, portions of training. It asks practitioners only to define the set of things they want the model to learn. With this information, it iteratively learns how to modify the data distribution over the course of training to be maximally useful for learning.
 
 ## Curriculum Learning
 
-Modern large-scale training pipelines already implement a curriculum, even if we do not usually name it as such. Training is no longer a single homogeneous phase: models are pre-trained, then optionally mid-trained, finetuned (SFT), and finally optimized with RL-based methods such as RLHF, RLAIF, or RLVR. Each phase uses a different sampling distribution over data and objectives.
+Modern large-scale training pipelines already implement a curriculum (Bengio et al., 2009), even if we do not usually name it as such. Training is no longer a single homogeneous phase: models are pre-trained, then optionally mid-trained, finetuned (SFT), and finally optimized with RL-based methods such as RLHF (Ouyang et al., 2022), RLAIF (Bai et al., 2022), or RLVR (Wen et al., 2025). Each phase uses a different sampling distribution over data and objectives.
 
 Seen this way, the pipeline is a hand-designed, piecewise curriculum over scale. Early on, we show the model a wide slice of the world and ask it to model generic structure. Later, we skew the mixture toward data that looks more like our downstream workload, then toward data with explicit human labels or preference signals, and finally toward reward-optimized interactions. What changes from phase to phase is not the architecture, but what we choose to show the model and how often.
 
@@ -29,11 +31,15 @@ In this work, we view curriculum as the mechanism that ought to tie these regime
 
 We now turn from hand-designed curricula to the question of how to learn one. Concretely, given grouped pre-training data and downstream target(s), we want a procedure that suggests how to weight clusters as a function of training progress.
 
+<img src="../media/curric/mixture.png" alt="Figure 2: Mixture" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
+
+<p style="text-align:center"><em>Figure 2: Visualization of how data mixtures may adapt over training.</em></p>
+
 We build this in two stages. First, at any fixed training scale, we assume access to a static mixture-learning primitive—our TerRIFIC optimizer—that proposes an update to per-cluster sampling logits. Second, we lift this primitive to a scale-dependent setting, learning a continuous function of training progress whose induced mixtures define a continuous curriculum.
 
 ### Warmup: Metagradient Descent + The TerRIFIC Optimizer
 
-In the static setting we maintain a single mixture over clusters that is fixed across the entire training run. The goal is to adjust that mixture so that training on it most improves performance on a downstream target set. To accomplish this, we need a good way to measure the impact that training on one example has on another.
+In the static setting we maintain a single mixture over clusters that is fixed across the entire training run, conceptually similar to metagradient descent approaches (Engstrom et al., 2025). The goal is to adjust that mixture so that training on it most improves performance on a downstream target set. To accomplish this, we need a good way to measure the impact that training on one example has on another.
 
 A natural conceptual starting point is **influence functions** (Koh et al., 2017). Given optimal parameters $\theta^\star$ for some training objective and a loss $L(z,\theta)$ on example $z$, the influence of a training example $z$ on a target example $z_{\text{test}}$ is defined as
 
@@ -136,31 +142,25 @@ saving checkpoints ${\theta_{t,N} : N \in [N_{\min}, N_{\max}]}$ along the way. 
 > **Inputs:** log-progress range $[s_{\min}, s_{\max}]$, batch size $B$, step size $\eta_t$.
 >
 > 1. Sample $B$ log-time locations
->    $$
->    \{s_t^{(b)}\}_{b=1}^B \stackrel{\text{i.i.d.}}{\sim}\mathrm{Unif}\bigl([s_{\min}, s_{\max}]\bigr)
->    $$
->    and set $N_t^{(b)} = e^{s_t^{(b)}}$.
->
-> 2. For each location, run the static TerRIFIC step at progress $N_t^{(b)}$ using the corresponding checkpoint $\theta_{t,N_t^{(b)}}$ to obtain an instantaneous per-cluster logit update
->    $$
->    \Delta f_t\bigl(s_t^{(b)}, G\bigr) \in \mathbb{R}^C.
->    $$
->    These are samples of the underlying update field:
->    $$
->    \Delta f_t\bigl(s_t^{(b)}, G\bigr) \approx \Delta f\bigl(e^{s_t^{(b)}}, G\bigr).
->    $$
->
-> 3. Sort ${s_t^{(b)}}$. For any $s \in [s_t^{(i)}, s_t^{(i+1)}]$, define a piecewise-linear interpolant
->    $$
->    \Delta f_t(s, G)=\frac{s_t^{(i+1)} - s}{s_t^{(i+1)} - s_t^{(i)}}\,\Delta f_t\bigl(s_t^{(i)}, G\bigr)+\frac{s - s_t^{(i)}}{s_t^{(i+1)} - s_t^{(i)}}\,\Delta f_t\bigl(s_t^{(i+1)}, G\bigr),
->    $$
->    and clamp to the nearest endpoint value for $s < s_t^{(1)}$ or $s > s_t^{(B)}$.
->
-> 4. We finally update the curriculum logits additively. Writing $s = \log N$, the meta-update is
->    $$
->    f_{t+1}(N, G) = f_t(N, G) + \eta_t ,\Delta f_t\bigl(\log N, G\bigr),
->    $$
->    with a small step size $\eta_t$.
+    $$
+    \{s_t^{(b)}\}_{b=1}^B \stackrel{\text{i.i.d.}}{\sim}\mathrm{Unif}\bigl([s_{\min}, s_{\max}]\bigr)
+    $$
+    and set $N_t^{(b)} = e^{s_t^{(b)}}$.
+ 2. For each checkpoint, obtain an instantaneous per-cluster logit update
+    $$
+    \Delta f_t\bigl(s_t^{(b)}, G\bigr) \in \mathbb{R}^C.
+    $$
+ 3. Sort ${s_t^{(b)}}$. For any $s \in [s_t^{(i)}, s_t^{(i+1)}]$, define a piecewise-linear interpolant
+    $$
+    \alpha = \frac{s - s_t^{(i)}}{s_t^{(i+1)} - s_t^{(i)}}, \qquad
+    \Delta f_t(s, G) = (1-\alpha),\Delta f_t\bigl(s_t^{(i)}, G\bigr) + \alpha,\Delta f_t\bigl(s_t^{(i+1)}, G\bigr).
+    $$
+    and clamp to the nearest endpoint value for $s < s_t^{(1)}$ or $s > s_t^{(B)}$.
+ 4. We finally update the curriculum logits additively. Writing $s = \log N$, the meta-update is
+    $$
+    f_{t+1}(N, G) = f_t(N, G) + \eta_t ,\Delta f_t\bigl(\log N, G\bigr),
+    $$
+    with a small step size $\eta_t$.
 
 We repeat this process for $t$ steps, iteratively refining our curriculum.
 
@@ -220,7 +220,7 @@ $$
 
 Greedily minimizing $f_{\text{groups}}(s)$ constructs an ordering whose prefixes stay very near the fixed mixture $T_j^{\star}(S) = \tau_j S$.
 
-However, there is a subtle pitfall. All $\mathbf{c}*s$ share the same $\ell_1$ norm (they sum to the sequence length $\ell_s$), so $f*{\text{groups}}$ implicitly prefers sequences with *less sparse* group membership (smaller $\lVert \mathbf{c}_s \rVert_2$) early in the ordering, and then is forced to consume extremely sparse sequences (e.g., almost all tokens from a single cluster or even a single document) near the end to repair the cumulative error. In typical corpora this looks like: **short, mixed-group slices early; very long, single-source spans late**—a poor match to how we’d like the model to experience the data.
+However, there is a subtle pitfall. All $\mathbf{c}_s$ share the same $\ell_1$ norm (they sum to the sequence length $\ell_s$), so $f_{\text{groups}}$ implicitly prefers sequences with *less sparse* group membership (smaller $\lVert \mathbf{c}_s \rVert_2$) early in the ordering, and then is forced to consume extremely sparse sequences (e.g., almost all tokens from a single cluster or even a single document) near the end to repair the cumulative error. In typical corpora this looks like: **short, mixed-group slices early; very long, single-source spans late.**
 
 To fix this, we treat **document length** as a first-class part of the target mixture.
 
@@ -357,9 +357,9 @@ Our experiments build on the Datacomp for Language Models (DCLM) (Li et al., 202
 
 > DCLM-Baseline is already a highly filtered web corpus. The question in this work is not “can we rescue a bad dataset,” but “how much extra signal can we squeeze out of a good one.”
 
-For clustering and targets, we reuse essentially the same pipeline as in the original TerRIFIC work (Melkonian, 2025). Each document is truncated to 1024 tokens and embedded with Qwen3-Embedding-0.6B (Zhang et al., 2025). We then run FAISS k-means with 10,000 clusters, following SemDeDup (Abbas et al., 2023). This gives us a reasonably fine-grained partition of the corpus without exploding meta-compute.
+For clustering and targets, we reuse essentially the same pipeline as in the original TerRIFIC work (Melkonian, 2025). Each document is truncated to 1024 tokens and embedded with Qwen3-Embedding-0.6B (Zhang et al., 2025). We then run FAISS k-means (Johnson et al., 2021) with 10,000 clusters, following SemDeDup (Abbas et al., 2023). This gives us a reasonably fine-grained partition of the corpus without exploding meta-compute.
 
-For the target set $\mathcal V$, we again use OpenHermes 2.5 (Teknium, 2024), truncating each example to 2048 tokens. All influence-style quantities—both in the static and scale-dependent settings—are computed against this fixed target set. Intuitively, the “what we care about” part of the setup is exactly the same as before; only the way we *use* it over training scale changes.
+For the target set $\mathcal V$, we again use OpenHermes 2.5 (Teknium, 2024), truncating each example to 2048 tokens. All influence-style quantities, both in the static and scale-dependent settings, are computed against this fixed target set. Intuitively, the “what we care about” part of the setup is exactly the same as before.
 
 All final training runs traverse the corpus using the **same greedy scheduler implementation**. The scheduler takes in a (possibly time-varying) mixture over groups plus doc-length profiles and produces a single-pass ordering whose prefixes track those targets as closely as possible. Once this ordering is fixed, training is just “read the stream once”; there is no per-step curriculum logic during the run.
 
@@ -376,15 +376,25 @@ Across these four settings, the corpus, training budget, model, optimizer, and s
 
 ## Results
 
-<img src="../media/curric/3by3_1b.png" alt="Figure 2: 1B" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
+We evaluate our curriculum by measuring perplexity on a number of held out tasks. These tasks range from information similar to our target set like coding (CodeAlpaca-20k (Chaudhary, 2023), OpenAI Human Eval (Chen et al., 2021), StarCoder (Li et al., 2023)) and math/reasoning (OpenThoughts-114k (Guha et al., 2025) and OpenMathInstruct 2 (Toshniwal et al., 2024)), as well as general language modeling (Paloma (Magnusson et al., 2023)) and recall (Wikitext (Merity et al., 2016)).
 
-<p style="text-align:center"><em>Figure 2: We present our core results on 1.4B parameter langauge models trained for 28B tokens.</em></p>
+<img src="../media/curric/3by3_1b.png" alt="Figure 3: 1B" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
 
-We evaluate our curriculum by measuring perplexity on a number of held out tasks. These tasks range from information similar to our target set like coding (CodeAlpaca-20k, OpenAI Human Eval, StarCoder) and math/reasoning (OpenThoughts-114k and OpenMathInstruct 2), as well as general language modeling (Paloma) and recall (Wikitext).
+<p style="text-align:center"><em>Figure 3: We present our core results on 1.4B parameter langauge models trained for 28B tokens.</em></p>
 
 We find the our curriculum largely outperforms both our strong baseline dataset and vanilla TerRIFIC. These gains are more notable on code, math, and reasoning where we often see it outperforming models trained twice as long.
 
 We do see regression on Wikitext, but note that this is reasonable and may even be desireable. We are trying to learn the most generally useful features. This goal can be at odds with memorization, which is critical for recall. Instead, we pursue a cognitive core: a "model that maximally sacrifices encyclopedic knowledge for capability" (Karpathy, 2025).
+
+### 411M Scale
+
+We find that, unlike at transfer scale 1.4B, at the scale we fit the mixtures, 411M parameter models, TerRIFIC-AVG is often the best performing approach, as seen in Figure 4. This is reasonable as it provides the most stable updates: averaging 5 distinct sub-updates is far lower noise than interpolating between them or using a single checkpoint.
+
+<img src="../media/curric/411m_perplexity.png.png" alt="Figure 4: 411m" style="max-width:100%; height:auto; display:block; margin: 0 auto;" />
+
+<p style="text-align:center"><em>Figure 4: Results at the 411M parameter scale tell a different story when compared to 1.4B. AVG performs best, likely due to the stability of updates.</em></p>
+
+These results are encouraging when considering the possible scaling axes for variants of TerRIFIC. They show that update stability is critical and can be captured by sampling more points along the training trajectory. This understanding can inform alternative ways to define the curriculum update field in future work.
 
 ### Downstream Evaluation
 
@@ -440,71 +450,49 @@ We analyze both worse case (minimum) stable rank, as well as mean stable rank. A
 
 ## Future Work
 
-This work retains all of the suboptimalities presented 
+This work retains all of the suboptimalities presented in the original TerRIFIC blog. Obvious improvements include: 
+
+- optimization of the target set
+- ablation of the influence primitive hyperperparameters
+- modifying the grouping mechanism
+- better utilizing repeated examples
+- meta-learning hyper-parameter optimization.
+
+Additionally, this work opens new directions to explore, namely:
+
+- how does performance change as a function of sampled checkpoints
+- is log-tokens the right axis, is log-compute better?
+- is the scheduler competitive (better?) than shuffling downstream?
+- analysis of the role of the noise parameter in the scheduler
+- can we extrapolate the updates beyond the endpoints instead of clamping?
+
+Long story short: **there is still A LOT of low hanging fruit.**
 
 ## References
 
 [1] Yoshua Bengio, Jérôme Louradour, Ronan Collobert, Jason Weston. Curriculum Learning. Proceedings of the 26th International Conference on Machine Learning (ICML) (2009).
 
-[2] Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, et al. Training Compute-Optimal Large Language Models. Proceedings of the 35th Conference on Neural Information Processing Systems (NeurIPS) (2022).
+[2] Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor Cai, Eliza Rutherford, Diego de Las Casas, Lisa Anne Hendricks, Johannes Welbl, Aidan Clark, Tom Hennigan, Eric Noland, Katie Millican, George van den Driessche, Bogdan Damoc, Aurelia Guy, Simon Osindero, Karen Simonyan, Erich Elsen, Jack W. Rae, Oriol Vinyals, Laurent Sifre. Training Compute-Optimal Large Language Models. Proceedings of the 36th Conference on Neural Information Processing Systems (NeurIPS) (2022).
 
-[3] Long Ouyang, Jeff Wu, Xu Jiang, Diogo Almeida, Carroll L. Wainwright, Pamela Mishkin, et al. Training Language Models to Follow Instructions with Human Feedback. Proceedings of the 36th Conference on Neural Information Processing Systems (NeurIPS) (2022). 
-arXiv
+[3] Long Ouyang, Jeff Wu, Xu Jiang, Diogo Almeida, Carroll L. Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke E. Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul Christiano, Jan Leike, Ryan J. Lowe. Training Language Models to Follow Instructions with Human Feedback. Proceedings of the 36th Conference on Neural Information Processing Systems (NeurIPS) (2022).
 
-[4] Yuntao Bai, Saurav Kadavath, Sandipan Kundu, Amanda Askell, Jackson Kernion, Andy Jones, et al. Constitutional AI: Harmlessness from AI Feedback. arXiv preprint arXiv:2212.08073 (2022). 
-arXiv
+[4] Yuntao Bai, Saurav Kadavath, Sandipan Kundu, Amanda Askell, Jackson Kernion, Andy Jones, Anna Chen, Anna Goldie, Azalia Mirhoseini, Cameron McKinnon, Carol Chen, Catherine Olsson, Christopher Olah, Danny Hernandez, Dawn Drain, Deep Ganguli, Dustin Li, Eli Tran-Johnson, Ethan Perez, Jamie Kerr, Jared Mueller, Jeffrey Ladish, Joshua Landau, Kamal Ndousse, Kamile Lukosuite, Liane Lovitt, Michael Sellitto, Nelson Elhage, Nicholas Schiefer, Noemi Mercado, Nova DasSarma, Robert Lasenby, Robin Larson, Sam Ringer, Scott Johnston, Shauna Kravec, Sheer El Showk, Stanislav Fort, Tamera Lanham, Timothy Telleen-Lawton, Tom Conerly, Tom Henighan, Tristan Hume, Samuel R. Bowman, Zac Hatfield-Dodds, Ben Mann, Dario Amodei, Nicholas Joseph, Sam McCandlish, Tom Brown, Jared Kaplan. Constitutional AI: Harmlessness from AI Feedback. arXiv preprint arXiv:2212.08073 (2022).
 
-[5] Xumeng Wen, Zihan Liu, Shun Zheng, Shengyu Ye, Zhirong Wu, Yang Wang, et al. Reinforcement Learning with Verifiable Rewards Implicitly Incentivizes Correct Reasoning in Base LLMs. arXiv preprint arXiv:2506.14245 (2025). 
-arXiv
+[5] Xumeng Wen, Zihan Liu, Shun Zheng, Zhijian Xu, Shengyu Ye, Zhirong Wu, Xiao Liang, Yang Wang, Junjie Li, Ziming Miao, Jiang Bian, Mao Yang. Reinforcement Learning with Verifiable Rewards Implicitly Incentivizes Correct Reasoning in Base LLMs. arXiv preprint arXiv:2506.14245 (2025).
 
 [6] Pang Wei Koh, Percy Liang. Understanding Black-box Predictions via Influence Functions. Proceedings of the 34th International Conference on Machine Learning (ICML) (2017).
-
-[7] James Martens, Roger Grosse. Optimizing Neural Networks with Kronecker-Factored Approximate Curvature. Proceedings of the 32nd International Conference on Machine Learning (ICML) (2015).
-
-[8] Thomas George, César Laurent, Xavier Bouthillier, Nicolas Ballas, Pascal Vincent. Fast Approximate Natural Gradient Descent in a Kronecker-Factored Eigenbasis (EK-FAC). Advances in Neural Information Processing Systems (NeurIPS) (2018). 
-ACM Digital Library
-
-[9] Sung Min Park, Kristian Georgiev, Andrew Ilyas, Guillaume Leclerc, Aleksander Madry. TRAK: Attributing Model Behavior at Scale. Proceedings of the 40th International Conference on Machine Learning (ICML) (2023). 
-arXiv
-
-[10] Sang Keun Choe, Hwijeen Ahn, Juhan Bae, Kewen Zhao, Minsoo Kang, Youngseog Chung, et al. What is Your Data Worth to GPT? LLM-Scale Data Valuation with Influence Functions. arXiv preprint arXiv:2405.13954 (2024).
-
-[11] Tyler A. Chang, Dheeraj Rajagopal, Tolga Bolukbasi, Lucas Dixon, Ian Tenney. Scalable Influence and Fact Tracing for Large Language Model Pretraining. arXiv preprint arXiv:2410.17413 (2024). 
-DBLP
-
-[12] Zichun Yu, Spandan Das, Chenyan Xiong. MATES: Model-Aware Data Selection for Efficient Pretraining with Data Influence Models. Advances in Neural Information Processing Systems (NeurIPS) (2024). 
-arXiv
-
-[13] Zichun Yu, Fei Peng, Jie Lei, Arnold Overwijk, Wen-tau Yih, Chenyan Xiong. Data-Efficient Pretraining with Group-Level Data Influence Modeling (Group-MATES). arXiv preprint arXiv:2502.14709 (2025). 
-arXiv
 
 [14] Logan Engstrom, Andrew Ilyas, Benjamin Chen, Axel Feldmann, William Moses, Aleksander Madry. Optimizing ML Training with Metagradient Descent. arXiv preprint arXiv:2503.13751 (2025). 
 arXiv
 
-[15] Jeffrey Li, Alex Fang, Georgios Smyrnis, Maor Ivgi, Matt Jordan, Samir Gadre, et al. DataComp-LM: In Search of the Next Generation of Training Sets for Language Models. arXiv preprint arXiv:2406.11794 (2024).
+[15] Jeffrey Li, Alex Fang, Georgios Smyrnis, Maor Ivgi, Matt Jordan, Samir Gadre, Joanna Materzynska, Tiger Zhang, Benjamin Eysenbach, Yi Su, Shivanshu Purohit, Utsav Prabhu, Prudhvi Raj Dachapally, Maria Jose Benitez, Gabriel Ilharco, Mitchell Wortsman, Ellery Wulczyn, Wei-Hung Weng, Christopher Ré, Keenan Jones, Sidharth Mudgal, Glen Wiley, Rob McMenemy, Jason Phang, Gabriella Harari, Tingyuan Liang, Diana Acosta-Navas, Kirthevasan Kandasamy, Chiyuan Zhang, Kenji Hata, G. Andrew Dullerud, Yiding Jiang, Fatemehsadat Mireshghallah, Samir Yitzhak Gadre, Andreas Veit, Benjamin L. Edelman, Pranav Rajpurkar, Sayna Ebrahimi, Ludwig Schmidt. DataComp-LM: In Search of the Next Generation of Training Sets for Language Models. arXiv preprint arXiv:2406.11794 (2024).
 
 [16] Amro Abbas, Kushal Tirumala, Dániel Simig, Surya Ganguli, Ari S. Morcos. SemDeDup: Data-efficient Learning at Web-scale through Semantic Deduplication. arXiv preprint arXiv:2303.09540 (2023).
-
-[17] Chi Zhang, Huaping Zhong. Harnessing Diversity for Important Data Selection in Pretraining Large Language Models. arXiv preprint arXiv:2409.16986 (2024).
-
-[18] Fengze Liu, Weidong Zhou, Binbin Liu, Zhimiao Yu, Yifan Zhang, Haobin Lin, et al. QuaDMix: Quality-Diversity Balanced Data Selection for Efficient LLM Pretraining. arXiv preprint arXiv:2504.16511 (2025).
-
-[19] Shizhe Diao, Yu Yang, Yonggan Fu, Xin Dong, Dan Su, Markus Kliegl, Zijia Chen, Peter Belcak, Yoshi Suhara, Hongxu Yin, Mostofa Patwary, Yingyan Lin, Jan Kautz, Pavlo Molchanov. CLIMB: CLustering-based Iterative Data Mixture Bootstrapping for Language Model Pre-training. arXiv preprint arXiv:2504.13161 (2025).
-
-[20] Dan Andrei Calian, Gregory Farquhar, Iurii Kemaev, Luisa M. Zintgraf, Matteo Hessel, Jeremy Shar, Junhyuk Oh, András György, Tom Schaul, Jeffrey Dean, Hado van Hasselt, David Silver. DataRater: Meta-Learned Dataset Curation. arXiv preprint arXiv:2505.17895 (2025).
-
-[21] Mihir Prabhudesai, Mengning Wu. Diffusion Beats Autoregressive in Data-Constrained Settings. arXiv preprint arXiv:2507.15857 (2025).
 
 [22] Yanzhao Zhang, Mingxin Li, Dingkun Long, Xin Zhang, Huan Lin, Baosong Yang, Pengjun Xie, An Yang, Dayiheng Liu, Junyang Lin, Fei Huang, Jingren Zhou. Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models. arXiv preprint arXiv:2506.05176 (2025). 
 arXiv
 
-[23] Guilherme Penedo, Hynek Kydlíček, Loubna Ben Allal, Anton Lozhkov, Margaret Mitchell, Colin Raffel, Leandro von Werra, Thomas Wolf. The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale. arXiv preprint arXiv:2406.17557 (2024). 
-arXiv
-
-[24] Guilherme Penedo, Quentin Malartic, Daniel Hesslow, Ruxandra Cojocaru, Alessandro Cappelli, Hamza Alobeidli, Baptiste Pannier, Ebtesam Almazrouei, Julien Launay. The RefinedWeb Dataset for Falcon LLM: Outperforming Curated Corpora with Web Data, and Web Data Only. arXiv preprint arXiv:2306.01116 (2023). 
-OpenReview
-
-[25] Raymond Li, Loubna Ben Allal, Yangtian Zi, Niklas Muennighoff, Denis Kocetkov, Chenghao Mou, Marc Marone, Christopher Akiki, Jia Li, Jenny Chim, et al. StarCoder: May the Source Be with You! Transactions on Machine Learning Research (TMLR), arXiv preprint arXiv:2305.06161 (2023).
+[25] Raymond Li, Loubna Ben Allal, Yangtian Zi, Niklas Muennighoff, Denis Kocetkov, Chenghao Mou, Marc Marone, Christopher Akiki, Jia Li, Jenny Chim, Qian Liu, Evgenii Zheltonozhskii, Terry Yue Zhuo, Thomas Wang, Olivier Dehaene, Mishig Davaadorj, Joel Lamy-Poirier, João Monteiro, Oleh Shliazhko, Nicolas Gontier, Nicholas Meade, Armel Zebaze, Ming-Ho Yee, Logesh Kumar Umapathi, Jian Zhu, Benjamin Lipkin, Muhtasham Oblokulov, Zhiruo Wang, Rudra Murthy, Jason Stillerman, Siva Sankalp Patel, Dmitry Abulkhanov, Marco Zocca, Manan Dey, Zhihan Zhang, Nour Fahmy, Urvashi Bhattacharyya, Wenhao Yu, Swayam Singh, Sasha Luccioni, Paulo Villegas, Maxim Kunakov, Fedor Zhdanov, Manuel Romero, Tony Lee, Nadav Timor, Jennifer Ding, Claire Schlesinger, Hailey Schoelkopf, Jan Ebert, Tri Dao, Mayank Mishra, Alex Gu, Jennifer Robinson, Carolyn Jane Anderson, Brendan Dolan-Gavitt, Danish Contractor, Siva Reddy, Daniel Fried, Dzmitry Bahdanau, Yacine Jernite, Carlos Muñoz Ferrandis, Sean Hughes, Thomas Wolf, Arjun Guha, Leandro von Werra, Harm de Vries. StarCoder: May the Source Be with You! Transactions on Machine Learning Research (TMLR); arXiv preprint arXiv:2305.06161 (2023).
 
 [26] Etash Guha, Ryan Marten, Sedrick Keh, Negin Raoof, Georgios Smyrnis, Hritik Bansal, Marianna Nezhurina, Jean Mercat, Trung Vu, Zayne Sprague, Ashima Suvarna, Benjamin Feuer, Liangyu Chen, Zaid Khan, Eric Frankel, Sachin Grover, Caroline Choi, Niklas Muennighoff, Shiye Su, Wanjia Zhao, John Yang, Shreyas Pimpalgaonkar, Kartik Sharma, Charlie Cheng-Jie Ji, Yichuan Deng, Sarah Pratt, Vivek Ramanujan, Jon Saad-Falcon, Jeffrey Li, Achal Dave, Alon Albalak, Kushal Arora, Blake Wulfe, Chinmay Hegde, Greg Durrett, Sewoong Oh, Mohit Bansal, Saadia Gabriel, Aditya Grover, Kai-Wei Chang, Vaishaal Shankar, Aaron Gokaslan, Mike A. Merrill, Tatsunori Hashimoto, Yejin Choi, Jenia Jitsev, Reinhard Heckel, Maheswaran Sathiamoorthy, Alexandros G. Dimakis, Ludwig Schmidt. OpenThoughts: Data Recipes for Reasoning Models. arXiv preprint arXiv:2506.04178 (2025).
 
@@ -524,12 +512,8 @@ arXiv
 
 [32] Stephen Merity, Caiming Xiong, James Bradbury, Richard Socher. Pointer Sentinel Mixture Models. arXiv preprint arXiv:1609.07843 (2016).
 
-[33] Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, Peter J. Liu. Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer. Journal of Machine Learning Research 21(140):1–67 (2020); originally arXiv preprint arXiv:1910.10683 (2019).
-
 [34] Jeff Johnson, Matthijs Douze, Hervé Jégou. Billion-scale Similarity Search with GPUs. IEEE Transactions on Big Data 7(3):535–547 (2021); arXiv preprint arXiv:1702.08734 (2017).
 
 [35] Joseph Melkonian. Learning Which Data To Learn: The TerRIFIC Meta-Optimizer. Blog post, joemelko.github.io (2025).
-
-[36] Raymond Li, Loubna Ben Allal, Yangtian Zi, Niklas Muennighoff, Denis Kocetkov, Chenghao Mou, Marc Marone, Christopher Akiki, Jia Li, Jenny Chim, et al. Learning Which Data To Learn: Topic Reweighting with Influence Functions in Clusters (TerRIFIC). arXiv preprint arXiv:2502.xxxxx (2025). (Fill in the exact arXiv ID once finalized; this is the underlying paper your blog extends.)
 
 [37] Andrej Karpathy. “The race for LLM ‘cognitive core’ – a few billion param model that maximally sacrifices encyclopedic knowledge for capability.” Tweet, X (2025).
